@@ -5,9 +5,12 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/AssetStore/AutoHand/Examples/Scenes/XR/Demo.unity
     guid: 9935fff7a54383d4a8ca954c1411c833
+  - enabled: 1
+    path: Assets/Scenes/Main.unity
+    guid: 2241a36a317ef944abf698f87c027682
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 54049d801666e2e419e59d91d01acabc, type: 2}
     Unity.XR.PICO.LivePreview.Settings: {fileID: 11400000, guid: d03669cd2d0677b4b867e1d3a3f178b6, type: 2}
