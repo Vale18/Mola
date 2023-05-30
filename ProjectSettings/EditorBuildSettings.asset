@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1045 &1
+EditorBuildSettings:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Scenes:
+  - enabled: 1
+    path: Assets/AssetStore/AutoHand/Examples/Scenes/XR/Demo.unity
+    guid: 9935fff7a54383d4a8ca954c1411c833
+  m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 54049d801666e2e419e59d91d01acabc, type: 2}
+    Unity.XR.PICO.LivePreview.Settings: {fileID: 11400000, guid: d03669cd2d0677b4b867e1d3a3f178b6, type: 2}
+    Unity.XR.PXR.Settings: {fileID: 11400000, guid: 0f9d6e8e898e6a844bff2f5430915529, type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: c302fb7df555e4341af74046c1b94e96, type: 2}
