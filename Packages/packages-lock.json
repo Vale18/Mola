@@ -207,9 +207,9 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.xr.picoxr": {
-      "version": "file:C:/Users/emilk/Desktop/2023/VR/VR TEMPLATE/PICO Unity IntegrationSDK-214-20230302 (1)",
+      "version": "file:PICO Unity Integration SDK_215",
       "depth": 0,
-      "source": "local",
+      "source": "embedded",
       "dependencies": {
         "com.unity.xr.management": "3.2.16",
         "com.unity.ugui": "1.0.0",
