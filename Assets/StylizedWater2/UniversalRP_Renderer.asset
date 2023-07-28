@@ -14,7 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   debugShaders:
     debugReplacementPS: {fileID: 4800000, guid: cf852408f2e174538bcd9b7fda1c5ae7, type: 3}
-  m_RendererFeatures: []
+  m_RendererFeatures:
+  - {fileID: 2742722094064484568}
   m_RendererFeatureMap: 
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -52,3 +53,24 @@ MonoBehaviour:
   m_ClusteredRendering: 0
   m_TileSize: 32
   m_IntermediateTextureMode: 1
+--- !u!114 &2742722094064484568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 952211dd0b8f432ca3e01150850775e5, type: 3}
+  m_Name: StylizedWater2.UnderwaterRenderFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  resources: {fileID: 11400000, guid: 4eff212383c9f5945ae947b357c76582, type: 2}
+  settings:
+    allowBlur: 1
+    allowDistortion: 1
+    distortionMode: 1
+    directionalCaustics: 0
+    accurateDirectionalCaustics: 0
+    waterlineRefraction: 1
