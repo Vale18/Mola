@@ -1,5 +1,3 @@
-/* Configuration: UnityFog */
-
 //Set this to value to 1 through Shader.SetGlobalFloat to temporarily disable fog for water
 float _WaterFogDisabled;
 
@@ -8,12 +6,17 @@ float _WaterFogDisabled;
 #ifdef SCPostEffects
 //Macros normally used for cross-RP compatibility
 #define LINEAR_DEPTH(depth) Linear01Depth(depth, _ZBufferParams)
+
+//Legacy (pre v2.2.1)
+#define DECLARE_TEX(textureName) TEXTURE2D(textureName);
+#define DECLARE_RT(textureName) TEXTURE2D_X(textureName);
+#define SAMPLE_TEX(textureName, samplerName, uv) SAMPLE_TEXTURE2D_LOD(textureName, samplerName, uv, 0)
+#define SAMPLE_RT_LOD(textureName, samplerName, uv, mip) SAMPLE_TEXTURE2D_X_LOD(textureName, samplerName, uv, mip)
 #endif
 
-//Executed in vertex stage
-float CalculateFogFactor(float3 positionCS) {
-	return ComputeFogFactor(positionCS.z);
-}
+#ifdef AtmosphericHeightFog
+bool AHF_Enabled;
+#endif
 
 //Fragment stage. Note: Screen position passed here is not normalized (divided by w-component)
 void ApplyFog(inout float3 color, float fogFactor, float4 screenPos, float3 positionWS, float vFace) 
@@ -29,11 +32,18 @@ void ApplyFog(inout float3 color, float fogFactor, float4 screenPos, float3 posi
 #endif
 	
 #ifdef Enviro
-	foggedColor.rgb = TransparentFog(float4(color.rgb, 1.0), positionWS, screenPos.xy / screenPos.w, fogFactor).rgb;
+	//Distance/height fog enabled?
+	if (_EnviroParams.y > 0 || _EnviroParams.z > 0)
+	{
+		foggedColor.rgb = TransparentFog(float4(color.rgb, 1.0), positionWS, screenPos.xy / screenPos.w, fogFactor).rgb;
+	}
 #endif
 
 #ifdef Enviro3
-	foggedColor.rgb = ApplyFogAndVolumetricLights(color.rgb, screenPos.xy / screenPos.w, positionWS, 0);
+	if(_EnviroFogParameters.x > 0)
+	{
+		foggedColor.rgb = ApplyFogAndVolumetricLights(color.rgb, screenPos.xy / screenPos.w, positionWS, 0);
+	}
 #endif
 	
 #ifdef Azure
@@ -41,19 +51,18 @@ void ApplyFog(inout float3 color, float fogFactor, float4 screenPos, float3 posi
 #endif
 
 #ifdef AtmosphericHeightFog
-	float4 fogParams = GetAtmosphericHeightFog(positionWS.xyz);
-	foggedColor.rgb = lerp(color.rgb, fogParams.rgb, fogParams.a);
+	if (AHF_Enabled)
+	{
+		float4 fogParams = GetAtmosphericHeightFog(positionWS.xyz);
+		foggedColor.rgb = lerp(color.rgb, fogParams.rgb, fogParams.a);
+	}
 #endif
 
 #ifdef SCPostEffects
 	//Distance or height fog enabled
 	if(_DistanceParams.z == 1 || _DistanceParams.w == 1)
 	{
-		//The screen position input is used when the fog color source is set to "Skybox". If never in use, you can set it to 0
-		float4 fogColor = ComputeTransparentFog(positionWS, screenPos.xy);
-
-		//The alpha channel will hold the density of the fog, use it as a lerp factor
-		foggedColor.rgb = lerp(fogColor.rgb, foggedColor.rgb, fogColor.a);
+		ApplyTransparencyFog(positionWS, screenPos.xy / screenPos.w, foggedColor.rgb);
 	}
 #endif
 

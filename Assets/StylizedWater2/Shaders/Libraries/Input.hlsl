@@ -10,6 +10,7 @@ TEXTURE2D(_DepthTex);
 CBUFFER_START(UnityPerMaterial)
 	float4 _ShallowColor;
 	float4 _BaseColor;
+	half _ColorAbsorption;
 
 	//float _Smoothness;
 	//float _Metallic;
@@ -20,7 +21,9 @@ CBUFFER_START(UnityPerMaterial)
 	float _DepthExp;
 	float _WorldSpaceUV;
 	float _NormalTiling;
+	float _NormalSubTiling;
 	float _NormalSpeed;
+	float _NormalSubSpeed;
 	half _NormalStrength;
 
 	half2 _DistanceNormalsFadeDist;
@@ -29,7 +32,6 @@ CBUFFER_START(UnityPerMaterial)
 	half _TranslucencyStrength;
 	half _TranslucencyExp;
 	half _TranslucencyCurvatureMask;
-	half _TranslucencyReflectionMask;
 	half _EdgeFade;
 	float _WaveSpeed;
 	float4 _HorizonColor;
@@ -58,12 +60,15 @@ CBUFFER_START(UnityPerMaterial)
 	half _SlopeFoam;
 
 	//Foam
-	float _FoamTiling;
 	float4 _FoamColor;
 	float _FoamSpeed;
-	half _FoamSize;
-	half _FoamWaveMask;
-	half _FoamWaveMaskExp;
+	float _FoamSubSpeed;
+	float _FoamTiling;
+	float _FoamSubTiling;
+	half _FoamBaseAmount;
+	half _FoamClipping;
+	half _FoamWaveAmount;
+	half _FoamDistortion;
 
 	//Intersection
 	half _IntersectionSource;
@@ -93,6 +98,7 @@ CBUFFER_START(UnityPerMaterial)
 	float _CausticsTiling;
 	half _CausticsSpeed;
 	half _RefractionStrength;
+	half _RefractionChromaticAberration;
 	half _CausticsDistortion;
 
 	half _UnderwaterSurfaceSmoothness;

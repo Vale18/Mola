@@ -2,8 +2,6 @@
 //Staggart Creations (http://staggart.xyz)
 //Copyright protected under Unity Asset Store EULA
 
-TEXTURE2D(_FoamTex);
-SAMPLER(sampler_FoamTex);
 TEXTURE2D(_BumpMapLarge);
 TEXTURE2D(_BumpMapSlope);
 
@@ -16,18 +14,18 @@ float3 BlendTangentNormals(float3 a, float3 b)
 	#endif
 }
 
-float3 SampleNormals(float2 uv, float3 wPos, float2 time, float speed, float slope, int vFace) 
+float3 SampleNormals(float2 uv, float tiling, float subTiling, float3 wPos, float2 time, float speed, float subSpeed, float slope, int vFace) 
 {
-	float4 uvs = PackedUV(uv, time, speed);
+	float4 uvs = PackedUV(uv * tiling, time, speed, subTiling, subSpeed);
 	float3 n1 = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvs.xy));
 	float3 n2 = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvs.zw));
 
 	float3 blendedNormals = BlendTangentNormals(n1, n2);
 
 	#ifdef QUAD_NORMAL_SAMPLES
-	uvs = PackedUV(uv, time.yx, speed);
-	float3 n4 = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvs.xy * 0.5));
-	float3 n5 = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvs.zw * 0.5));
+	uvs = PackedUV(uv * tiling, time.yx, speed, subTiling, subSpeed);
+	float3 n4 = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvs.xy * 2.0));
+	float3 n5 = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, uvs.zw * 2.0));
 
 	blendedNormals = BlendTangentNormals(blendedNormals, BlendTangentNormals(n4, n5));
 	#endif
@@ -44,7 +42,7 @@ float3 SampleNormals(float2 uv, float3 wPos, float2 time, float speed, float slo
 
 	float3 largeBlendedNormals;
 	
-	uvs = PackedUV(uv * _DistanceNormalsTiling, time, speed * 0.5);
+	uvs = PackedUV(uv * _DistanceNormalsTiling, time, speed * 0.5, 0.5, 0.15);
 	float3 n1b = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMapLarge, sampler_BumpMap, uvs.xy));
 	
 	#if _ADVANCED_SHADING //Use 2nd texture sample
@@ -58,7 +56,7 @@ float3 SampleNormals(float2 uv, float3 wPos, float2 time, float speed, float slo
 #endif
 	
 #if _RIVER
-	uvs = PackedUV(uv, time, speed * _SlopeSpeed);
+	uvs = PackedUV(uv * tiling, time, speed * _SlopeSpeed, subTiling, subSpeed * _SlopeSpeed);
 	uvs.xy = uvs.xy * float2(1, 1-_SlopeStretching);
 	float3 n3 = UnpackNormal(SAMPLE_TEXTURE2D(_BumpMapSlope, sampler_BumpMap, uvs.xy));
 
@@ -69,7 +67,7 @@ float3 SampleNormals(float2 uv, float3 wPos, float2 time, float speed, float slo
 	blendedNormals = lerp(blendedNormals, n3, slope);
 #endif
 
-	#ifdef WAVE_SIMULATION
+	#if WAVE_SIMULATION
 	BlendWaveSimulation(wPos, blendedNormals);
 	#endif
 	
@@ -82,7 +80,7 @@ float SampleIntersection(float2 uv, float gradient, float2 time)
 	float dist = 0;
 	
 #if _SHARP_INERSECTION
-	float sine = sin(time.y * 10 - (gradient * _IntersectionRippleDist)) * _IntersectionRippleStrength;
+	float sine = sin(time.y * 10.0 - (gradient * _IntersectionRippleDist)) * _IntersectionRippleStrength;
 	float2 nUV = float2(uv.x, uv.y) * _IntersectionTiling;
 	float noise = SAMPLE_TEXTURE2D(_IntersectionNoise, sampler_IntersectionNoise, nUV + time.xy).r;
 
@@ -107,43 +105,58 @@ float SampleIntersection(float2 uv, float gradient, float2 time)
 	return saturate(inter);
 }
 
-float SampleFoam(float2 uv, float2 time, float clipping, float mask, float slope)
+float ScreenEdgeMask(float2 screenPos, float length)
 {
-#if _FOAM
-	float4 uvs = PackedUV(uv, time, _FoamSpeed, 0.5, 0.15);
-	float f1 = SAMPLE_TEXTURE2D(_FoamTex, sampler_FoamTex, uvs.xy).r;	
-	float f2 = SAMPLE_TEXTURE2D(_FoamTex, sampler_FoamTex, uvs.zw).r;
+	float lengthRcp = 1.0f/length;
+	float2 t = Remap10(abs(screenPos.xy * 2.0 - 1.0), lengthRcp, lengthRcp);
+	return Smoothstep01(t.x) * Smoothstep01(t.y);
+}
+
+#define REFRACTION_IOR_RCP 0.7501875 //=1f/1.333f
+
+float2 RefractionOffset(float2 screenPos, float3 viewDir, float3 normalWS, float strength)
+{
+	//Normalized to match the more accurate method
+	float2 offset = normalWS.xz * 0.5;
+
+	#if PHYSICAL_REFRACTION	
+	//Light direction as traveling towards the eye, through the water surface
+	float3 rayDir = refract(-viewDir, normalWS, REFRACTION_IOR_RCP);
+	//Convert to view-space, because the coordinates are used to sample a screen-space texture
+	float3 viewSpaceRefraction = TransformWorldToViewDir(rayDir);
+
+	//Prevent streaking at the edges, by lerping to non-screenspace coordinates at the screen edges
+	half edgeMask = ScreenEdgeMask(screenPos, length(viewSpaceRefraction.xy));
+	//edgeMask = 1.0; //Test, disable
 	
-	#if UNITY_COLORSPACE_GAMMA
-	f1 = SRGBToLinear(f1);
-	f2 = SRGBToLinear(f2);
+	offset.xy = lerp(normalWS.xz * 0.5, viewSpaceRefraction.xy, edgeMask);
 	#endif
 
-	float foam = saturate(f1 + f2) * mask;
+	return offset * strength;
+}
 
-#if _RIVER //Slopes
-	uvs = PackedUV(uv, time, _FoamSpeed * _SlopeSpeed);
-	//Stretch UV vertically on slope
-	uvs.yw *= 1-_SlopeStretching;
+#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareOpaqueTexture.hlsl"
+#define CHROMASHIFT_SIZE 0.05
 
-	//Cannot reuse the same UV, slope foam needs to be resampled and blended in
-	float f3 = SAMPLE_TEXTURE2D(_FoamTex, sampler_FoamTex, uvs.xy).r;
-	float f4 = SAMPLE_TEXTURE2D(_FoamTex, sampler_FoamTex, uvs.zw).r;
-
-	#if UNITY_COLORSPACE_GAMMA
-	f3 = SRGBToLinear(f3);
-	f4 = SRGBToLinear(f4);
+float3 SampleOpaqueTexture(float4 screenPos, float2 offset, float dispersion)
+{
+	//Normalize for perspective projection
+	screenPos.xy += offset;
+	screenPos.xy /= screenPos.w;
+	
+	float3 sceneColor = SampleSceneColor(screenPos.xy).rgb;
+	
+	#if PHYSICAL_REFRACTION //Chromatic part
+	if(dispersion > 0)
+	{
+		float chromaShift = (length(offset) * dispersion) / screenPos.w;
+		//Note: screen buffer texelsize purposely not used, this way the effect is actually consistent across all resolutions
+		float texelOffset = chromaShift * CHROMASHIFT_SIZE;
+	
+		sceneColor.r = SampleSceneColor(screenPos.xy + float2(texelOffset, 0)).r;
+		sceneColor.b = SampleSceneColor(screenPos.xy - float2(texelOffset, 0)).b;
+	}
 	#endif
 
-	half slopeFoam = saturate(f3 + f4);
-	
-	foam = lerp(foam, slopeFoam, slope);
-#endif
-	
-	foam = smoothstep(clipping, 1.0, foam);
-
-	return foam;
-#else
-	return 0;
-#endif
+	return sceneColor;
 }

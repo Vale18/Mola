@@ -7,6 +7,7 @@
 
 float _ClipOffset; //Lens offset
 bool _FullySubmerged;
+bool _UnderwaterRenderingEnabled;
 
 #if !defined(SHADERGRAPH_PREVIEW)
 TEXTURE2D(_UnderwaterMask);
@@ -158,13 +159,21 @@ float3 ShadeUnderwaterSurface(in float3 albedo, float3 emission, float3 specular
 float SampleUnderwaterMask(float2 screenPos)
 {
 	#ifndef SHADERGRAPH_PREVIEW //SAMPLE_TEXTURE2D_X is yet available
-	if(_FullySubmerged)
+
+	if(_UnderwaterRenderingEnabled)
 	{
-		return 1;
+		if(_FullySubmerged)
+		{
+			return 1;
+		}
+		else
+		{
+			return SAMPLE_TEXTURE2D(_UnderwaterMask, sampler_UnderwaterMask, screenPos.xy).r;
+		}
 	}
 	else
 	{
-		return SAMPLE_TEXTURE2D(_UnderwaterMask, sampler_UnderwaterMask, screenPos.xy).r;
+		return 0;
 	}
 	#else
 	return 0;
@@ -201,18 +210,21 @@ float ClipSurface(float4 screenPos, float3 positionWS, float3 positionCS, float 
 //Shading for external transparent materials
 void ApplyUnderwaterShading(inout float3 color, float3 positionWS, float3 normal, float3 viewDir, float bottomFace)
 {
-	#if UNDERWATER_ENABLED && !defined(SHADERGRAPH_PREVIEW)
-	const float distanceDensity = ComputeDistanceXYZ(positionWS);
-	const float heightDensity = ComputeUnderwaterFogHeight(positionWS);
-	const float density = ComputeDensity(distanceDensity, heightDensity);
+	#if !defined(SHADERGRAPH_PREVIEW)
+	if(_UnderwaterRenderingEnabled)
+	{
+		const float distanceDensity = ComputeDistanceXYZ(positionWS);
+		const float heightDensity = ComputeUnderwaterFogHeight(positionWS);
+		const float density = ComputeDensity(distanceDensity, heightDensity);
 	
-	float3 fogColor = GetUnderwaterFogColor(distanceDensity, heightDensity);
+		float3 fogColor = GetUnderwaterFogColor(distanceDensity, heightDensity);
 
-	//Apply lighting to the albedo fog color
-	ApplyUnderwaterLighting(fogColor, 1.0, normal, viewDir);
+		//Apply lighting to the albedo fog color
+		ApplyUnderwaterLighting(fogColor, 1.0, normal, viewDir);
 	
-	const float mask = (bottomFace * density);
-	color = lerp(color, fogColor, mask);
+		const float mask = (bottomFace * density);
+		color = lerp(color, fogColor, mask);
+	}
 	#endif
 }
 
@@ -237,14 +249,17 @@ void ApplyUnderwaterShading_float(in float3 inEmission, float3 positionWS, out f
 {
 	outEmission = inEmission;
 	density = 1;
-	
-	#if UNDERWATER_ENABLED
-	float3 viewDir = SafeNormalize(_WorldSpaceCameraPos - positionWS);
-	ApplyUnderwaterShading(outEmission, positionWS, float3(0,1,0), viewDir, 1.0);
 
-	density = GetUnderwaterFogDensity(positionWS);
+	#if !defined(SHADERGRAPH_PREVIEW)
+	if(_UnderwaterRenderingEnabled)
+	{
+		float3 viewDir = SafeNormalize(_WorldSpaceCameraPos - positionWS);
+		ApplyUnderwaterShading(outEmission, positionWS, float3(0,1,0), viewDir, 1.0);
+
+		density = GetUnderwaterFogDensity(positionWS);
 	
-	outEmission = lerp(inEmission, outEmission, density);
+		outEmission = lerp(inEmission, outEmission, density);
+	}
 	#endif
 }
 #endif

@@ -2,12 +2,6 @@
 //Staggart Creations (http://staggart.xyz)
 //Copyright protected under Unity Asset Store EULA
 
-#if UNITY_VERSION >= 202120
-#define bakedLightmapUV staticLightmapUV
-#else
-#define bakedLightmapUV lightmapUV
-#endif
-
 struct Attributes
 {
 	float4 positionOS 	: POSITION;
@@ -15,22 +9,19 @@ struct Attributes
 	float4 normalOS 	: NORMAL;
 	float4 tangentOS 	: TANGENT;
 	float4 color 		: COLOR0;
-
-	float2 bakedLightmapUV   : TEXCOORD1;
+	float2 staticLightmapUV   : TEXCOORD1;
 	float2 dynamicLightmapUV  : TEXCOORD2;
-	
 	UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
 struct Varyings
 {	
 	float4 uv 			: TEXCOORD0;
-	DECLARE_LIGHTMAP_OR_SH(bakedLightmapUV, vertexSH, 8); //Called staticLightmapUV in URP12+
 
-	half4 fogFactorAndVertexLight : TEXCOORD2; // x: fogFactor, yzw: vertex light
+	half4 fogFactorAndVertexLight : TEXCOORD1; // x: fogFactor, yzw: vertex light
 	
 	#if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR) //No shadow cascades
-	float4 shadowCoord 	: TEXCOORD3;
+	float4 shadowCoord 	: TEXCOORD2;
 	#endif
 	
 	//wPos.x in w-component
@@ -46,12 +37,13 @@ struct Varyings
 
 	float4 screenPos 	: TEXCOORD5;
 	
+	DECLARE_LIGHTMAP_OR_SH(staticLightmapUV, vertexSH, 8);
 	#ifdef DYNAMICLIGHTMAP_ON
 	float2  dynamicLightmapUV : TEXCOORD9; // Dynamic lightmap UVs
 	#endif
 
 	float4 positionCS 	: SV_POSITION;
-	float4 color 		: COLOR0;	
+	float4 color 		: COLOR0;
 	
 	UNITY_VERTEX_INPUT_INSTANCE_ID
     UNITY_VERTEX_OUTPUT_STEREO
@@ -85,6 +77,13 @@ Varyings LitPassVertex(Attributes input)
 	#endif
 
 	VertexNormalInputs normalInput = GetVertexNormalInputs(input.normalOS.xyz, input.tangentOS);
+
+	if(_WorldSpaceUV > 0)
+	{
+		//Tangents are to be in world-space as well. Otherwise the rotation of the water plane also rotates the tangents
+		normalInput.tangentWS = real3(1.0, 0.0, 0.0);
+		normalInput.bitangentWS = real3(0.0, 0.0, 1.0);
+	}
 	
 	float4 vertexColor = GetVertexColor(input.color.rgba, float4(_IntersectionSource > 0 ? 1 : 0, _VertexColorDepth, _VertexColorWaveFlattening, _VertexColorFoam));
 	
@@ -101,11 +100,18 @@ Varyings LitPassVertex(Attributes input)
 
 	//SampleWaveSimulationVertex(positionWS, positionWS.y);
 
+	#if DYNAMIC_EFFECTS_ENABLED && defined(TESSELLATION_ON)
+	float4 effectsData = SampleDynamicEffectsData(positionWS.xyz + offset.xyz);
+
+	half falloff = saturate(1.0 - (distance(positionWS.xyz, GetCurrentViewPosition() - _TessMin)) / (_TessMax - _TessMin));
+	offset.y += effectsData[DE_DISPLACEMENT_CHANNEL] * effectsData[DE_ALPHA_CHANNEL] * falloff;
+	#endif
+	
 	//Apply vertex displacements
 	positionWS += offset;
 
 	output.positionCS = TransformWorldToHClip(positionWS);
-	half fogFactor = CalculateFogFactor(output.positionCS.xyz);
+	half fogFactor = InitializeInputDataFog(float4(positionWS, 1.0), output.positionCS.z);
 
 	output.screenPos = ComputeScreenPos(output.positionCS);
 	
@@ -125,17 +131,16 @@ Varyings LitPassVertex(Attributes input)
 
 	output.fogFactorAndVertexLight = half4(fogFactor, vertexLight);
 	output.color = vertexColor;
-
-	//"bakedLightmapUV" resolves to "staticLightmapUV" in URP12+
-	OUTPUT_LIGHTMAP_UV(input.bakedLightmapUV, unity_LightmapST, output.bakedLightmapUV);
-	#if UNITY_VERSION >= 202310
-	OUTPUT_SH(positionWS, output.normalWS.xyz, GetWorldSpaceNormalizeViewDir(positionWS), output.vertexSH);
-	#else
-	OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
-	#endif
 	
+	OUTPUT_LIGHTMAP_UV(input.staticLightmapUV, unity_LightmapST, output.staticLightmapUV);
 	#ifdef DYNAMICLIGHTMAP_ON
 	output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+	#endif
+	
+	#if UNITY_VERSION >= 202320 //Note: actually available from 2023.1.7+ (URP 15.0.8)
+	OUTPUT_SH4(positionWS, output.normalWS.xyz, GetWorldSpaceNormalizeViewDir(positionWS), output.vertexSH);
+	#else
+	OUTPUT_SH(output.normalWS.xyz, output.vertexSH);
 	#endif
 
 #if defined(REQUIRES_VERTEX_SHADOW_COORD_INTERPOLATOR)
@@ -144,6 +149,6 @@ Varyings LitPassVertex(Attributes input)
 	vertexInput.positionCS = output.positionCS;
 	output.shadowCoord = GetShadowCoord(vertexInput);
 #endif
-	
+
 	return output;
 }

@@ -9,6 +9,12 @@
 #define MAX_TESSELLATION_FACTORS 64.0
 #endif
 
+#if defined(SHADER_API_GLES2)
+#warning Current graphics API does not support tessellation, falling back to non-tessellated shader automatically.
+#else
+#define UNITY_CAN_COMPILE_TESSELLATION
+#endif
+
 struct TessellationFactors
 {
 	float edge[3] : SV_TessFactor;
@@ -22,25 +28,39 @@ struct VertexControl
 	float4 tangentOS : TANGENT;
 	float4 uv : TEXCOORD0;
 	float4 color : COLOR;
+
+	#ifdef LIGHTMAP_ON
+	float2 staticLightmapUV  : TEXCOORD1;
+	#endif
+	#ifdef DYNAMICLIGHTMAP_ON
+	float2 dynamicLightmapUV  : TEXCOORD2;
+	#endif
 				
 	UNITY_VERTEX_INPUT_INSTANCE_ID
 };
 
-VertexControl VertexTessellation ( Attributes v )
+VertexControl VertexTessellation(Attributes input)
 {
-	VertexControl o;
-	UNITY_SETUP_INSTANCE_ID(v);
-	UNITY_TRANSFER_INSTANCE_ID(v, o);
+	VertexControl output;
+	UNITY_SETUP_INSTANCE_ID(input);
+	UNITY_TRANSFER_INSTANCE_ID(input, output);
 
-	o.positionOS = v.positionOS;
-	o.normalOS = v.normalOS;
-	o.tangentOS = v.tangentOS;
-	o.uv.xy = v.uv.xy;
-	o.uv.z = _TimeParameters.x;
-	o.uv.w = 0;
-	o.color = v.color;
+	output.positionOS = input.positionOS;
+	output.normalOS = input.normalOS;
+	output.tangentOS = input.tangentOS;
+	output.uv.xy = input.uv.xy;
+	output.uv.z = _TimeParameters.x;
+	output.uv.w = 0;
+	output.color = input.color;
 
-	return o;
+	#ifdef LIGHTMAP_ON
+	output.staticLightmapUV = input.staticLightmapUV.xy * unity_LightmapST.xy + unity_LightmapST.zw;
+	#endif
+	#ifdef DYNAMICLIGHTMAP_ON
+	output.dynamicLightmapUV = input.dynamicLightmapUV.xy * unity_DynamicLightmapST.xy + unity_DynamicLightmapST.zw;
+	#endif
+	
+	return output;
 }
 
 float CalcDistanceTessFactor(float4 positionOS, float minDist, float maxDist, float tess, float3 cameraPos)
@@ -112,6 +132,13 @@ Varyings Domain(TessellationFactors factors, OutputPatch<VertexControl, 3> input
 	TESSELLATION_INTERPOLATE_BARY_URP(normalOS, baryCoords);
 	TESSELLATION_INTERPOLATE_BARY_URP(tangentOS, baryCoords);
 	TESSELLATION_INTERPOLATE_BARY_URP(color, baryCoords);
+	
+	#if defined(LIGHTMAP_ON)
+	TESSELLATION_INTERPOLATE_BARY_URP(staticLightmapUV, baryCoords);
+	#endif
+	#if defined(DYNAMICLIGHTMAP_ON)
+	TESSELLATION_INTERPOLATE_BARY_URP(dynamicLightmapUV, baryCoords);
+	#endif
 
 	//Tessellation does not work entirely correct with GPU instancing
 	UNITY_TRANSFER_INSTANCE_ID(input[0], output);

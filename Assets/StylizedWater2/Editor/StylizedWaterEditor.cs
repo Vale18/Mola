@@ -106,10 +106,10 @@ namespace StylizedWater2
             return AssetDatabase.LoadMainAssetAtPath(path);
         }
         
-        public static bool SurfaceModifiersInstalled()
+        public static bool DynamicEffectsInstalled()
         {
-            //Checking for the WaterModifiersRenderFeature.cs meta file
-            string path = AssetDatabase.GUIDToAssetPath("89138902f514ada418b44ddd62e8de22");
+            //Checking for the WaterDynamicEffectsRenderFeature.cs meta file
+            string path = AssetDatabase.GUIDToAssetPath("48bd76fbc46e46fe9bc606bd3c30bd9b");
             return AssetDatabase.LoadMainAssetAtPath(path);
         }
 
@@ -138,6 +138,14 @@ namespace StylizedWater2
 
             UniversalRenderPipeline.asset.supportsCameraDepthTexture = true;
             EditorUtility.SetDirty(UniversalRenderPipeline.asset);
+
+            if (PipelineUtilities.IsDepthTextureOptionDisabledAnywhere())
+            {
+                if (EditorUtility.DisplayDialog(AssetInfo.ASSET_NAME, "The Depth Texture option is still disabled on other pipeline assets (likely for other quality levels).\n\nWould you like to enable it on those as well?", "OK", "Cancel"))
+                {
+                    PipelineUtilities.SetDepthTextureOnAllAssets(true);   
+                }
+            }
 			#endif
         }
 
@@ -148,6 +156,14 @@ namespace StylizedWater2
 
             UniversalRenderPipeline.asset.supportsCameraOpaqueTexture = true;
             EditorUtility.SetDirty(UniversalRenderPipeline.asset);
+            
+            if (PipelineUtilities.IsOpaqueTextureOptionDisabledAnywhere())
+            {
+                if (EditorUtility.DisplayDialog(AssetInfo.ASSET_NAME, "The Opaque Texture option is still disabled on other pipeline assets (likely for other quality levels).\n\nWould you like to enable it on those as well?", "OK", "Cancel"))
+                {
+                    PipelineUtilities.SetOpaqueTextureOnAllAssets(true);   
+                }
+            }
 			#endif
         }
         
@@ -198,6 +214,7 @@ namespace StylizedWater2
             }
             
             NWH.DWP2.WaterData.StylizedWaterDataProvider dataProvider = Find<NWH.DWP2.WaterData.StylizedWaterDataProvider>();
+            NWH.DWP2.WaterData.FlatWaterDataProvider oldProvider = Find<NWH.DWP2.WaterData.FlatWaterDataProvider>();
 
             if (dataProvider)
             {
@@ -207,7 +224,8 @@ namespace StylizedWater2
                 
                 return;
             }
-            else
+            
+            if(oldProvider == null)
             {
                 if (EditorUtility.DisplayDialog("Dynamic Water Physics 2 -> Stylized Water 2", 
                     "Could not find a \"Flat Water Data Provider\" component in the scene.\n\nIt's recommended to first set up DWP2 according to their manual.", 
@@ -217,7 +235,6 @@ namespace StylizedWater2
                 }
             }
             
-            NWH.DWP2.WaterData.FlatWaterDataProvider oldProvider = Find<NWH.DWP2.WaterData.FlatWaterDataProvider>();
 
             NWH.DWP2.DefaultWater.Water waterScript = Find<NWH.DWP2.DefaultWater.Water>();
             if(waterScript) DestroyImmediate(waterScript);

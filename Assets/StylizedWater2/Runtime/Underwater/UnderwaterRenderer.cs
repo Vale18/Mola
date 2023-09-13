@@ -14,8 +14,8 @@ namespace StylizedWater2
     [ExecuteInEditMode]
     public class UnderwaterRenderer : MonoBehaviour
     {
-        public const string Version = "1.0.9";
-        public const string MinBaseVersion = "1.4.0";
+        public const string Version = "1.1.0";
+        public const string MinBaseVersion = "1.5.0";
         
 #if URP
         public static UnderwaterRenderer Instance;

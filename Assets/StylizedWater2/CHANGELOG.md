@@ -1,3 +1,64 @@
+1.5.1
+Minimum supported version is now Unity 2021.3.16f1 (URP 12.1.6).
+
+Added:
+- Planar Reflections UI, warning when using the default renderer. Added a button to automatically create and assign a new empty renderer.
+- Planar Reflections, option to enabled default fog for the render.
+- Frozen lake prefab material.
+- Extended support for the Rendering Debugger. Reflections, translucency and caustics can now also be inspected.
+
+Changed:
+- Revised some demo scene content.
+- Fog density is now calculated per pixel, as opposed to per vertex (standard as of Unity 2021.2).
+
+Fixed:
+- Water not rendering on Android VR if URP's "SH Evaluation" setting was set to 'Per vertex'.
+- Surface Foam tiling parameter not having any effect for foam drawn on slopes (regression since v1.5.0).
+- (Unity 2022.2+) Planar Reflections causing an error in URP's rendering loop when the scene hierarchy search functionality was used.
+- Planar Reflections, error thrown when using the Profiler and exiting Play mode.
+
+1.5.0
+Verified compatibility with Unity 2023.1f1. This is the last update supporting Unity 2020.
+
+Added:
+- Swamp water material
+- Improved refraction (Advanced shading mode only), taking the surface curvature more accurately into account + Exposed parameter to control chromatic aberration
+- Color absorption feature, darkens the underwater color based on its depth (Advanced shading mode only).
+- Surface Foam now dissipates based on a base amount of foam, and that added through waves
+  * Base Amount parameter, previously controlled by the foam color alpha channel
+  * Foam Distortion parameter, distorts the foam by the amount of vertical surface displacement (such as with waves).
+- Parameters to control the Tiling/Speed of the Normal Map and Surface Foam sub-layers.
+- Support for Light Layers in Unity 2022.2+
+- Global Illumination support when using Tessellation
+
+Changed:
+- Material UI, corrected unwanted indentation in Unity 2022.2+ due to parameter locking functionality.
+- Translucency shading, Curvature Mask parameter now acts as a mask for surface slopes
+- Increased maximum allowed amount of tessellation subdivisions from 16 to 32 (internally still limited to 15 on Xbox One and PS5).
+- Water Mesh asset utility now has a "Bounds padding" value exposed. Previously used a fixed value of 4, to add artificial height to the mesh for improved culling.
+- Improved consistency of Distance Depth (fog) appearance between perspective- and orthographic cameras.
+- Caustics no longer appear on the skybox behind water geometry
+- Refraction is no longer forced to be disabled if the Normals feature is.
+- Distance Normals tiling parameter is now decoupled from the base normal tiling
+- Updated fog integration for Atmospheric Height Fog (3.0.0).
+- Shader error message is now thrown should a fog asset cause a Built-in RP shader library to be compiled into it.
+- Fog shading now also applies to backfaces of the geometry used
+
+Fixed:
+- Inconsistent animation direction between Mesh UV and World Projected coordinate modes. 
+- Static lightmapping not having any effect in Unity 2022.3+ (GI now no longer supported in 2020.3)
+- Normals being incorrect if World XZ Projected UV was used, yet the water plane was rotated on the Y-axis.
+- Caustics no longer disappear when lightmaps are applied (no light was available to control the effect's intensity)
+- Default Unity fog integration not taking effect, when automatic integration detection was enabled.
+- Scaling a Water Grid component caused it to not create geometry correctly, nor display the grid gizmo accurately.
+- Auto-setup function for DWP2 in help window not working if no Flat Water Data Provider component was present anywhere.
+- Preventing Enviro (1 & 3) and Atmospheric Height Fog from shading the water if their settings are un-initialized.
+- Incorrect wave normals when geometry had a rotation, causing reflections to look incorrect.
+- Pre-emptive shader error fixes in Unity 2023.2+, due to API changes.
+
+Removed:
+- Surface Foam, Wave Mask Exponent parameter
+
 1.4.0
 Converted water shader to a new 'scriptable shader' framework. Integrations, extensions and version-specific hooks are now automatically incorporated.
 
