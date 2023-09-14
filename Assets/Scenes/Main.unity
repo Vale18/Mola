@@ -4031,10 +4031,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8545279cf76a7044a88fcae5e569d011, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  filepath: C:\BioTrace+ NX10\System\DataChan.bin
+  filepath: C:\Program Files\BioTrace+ NX10\System\DataChan.bin
   pollsPerSecond: 64
   debugCurrentPPS: 0
-  channelNumbersToRead: 0500000007000000080000001600000017000000
+  channelNumbersToRead: 08000000
   convertDoubleToFloat: 0
 --- !u!4 &741325072
 Transform:

@@ -128,9 +128,6 @@ public class Nexus_Listener : MonoBehaviour {
 			logMessage += $"Channel {channelNumbersToRead[i]}: {channel[i]}, ";
 		}
 
-		object channel8Values = channel[2];
-		Debug.Log("Channel 8 Values:" + channel8Values);
-
 Debug.Log(logMessage);
 	}
 
