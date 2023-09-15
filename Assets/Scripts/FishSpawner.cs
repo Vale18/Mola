@@ -12,7 +12,7 @@ public class FishSpawner : MonoBehaviour
     private void Start()
     {
         // Initial spawn to fill the area from 0 Y to -50 Y
-        for (float depth = 0; depth >= -50f; depth -= 10f) // You can adjust the step value as needed
+        for (float depth = -5; depth >= -50f; depth -= 10f) // You can adjust the step value as needed
         {
             int fishCount = Mathf.FloorToInt(density * spawnRadius * spawnRadius);
             for (int i = 0; i < fishCount; i++)
@@ -37,19 +37,41 @@ public class FishSpawner : MonoBehaviour
         }
     }
 
+    private GameObject SpawnFish(GameObject fishPrefab, Vector3 spawnPosition, Quaternion rotation)
+    {
+        GameObject fish = Instantiate(fishPrefab, spawnPosition, rotation);
+    
+        // Attach the FishMover script to the instantiated fish
+        if (fish.GetComponent<FishMover>() == null)
+        {
+            fish.AddComponent<FishMover>();
+        }
+
+        Destroy(fish, 14f);
+        return fish;
+    }
+
+    private Quaternion InitialSpawnRotation(Vector3 spawnPosition)
+    {
+        Vector3 directionToCenter = (new Vector3(0, spawnPosition.y, 0) - spawnPosition).normalized;
+        Vector3 randomRotationAxis = Vector3.Cross(Vector3.up, Random.insideUnitSphere).normalized;
+
+        // This will ensure the fish doesn't face upwards, but still has a random orientation in the horizontal plane
+        return Quaternion.LookRotation(Vector3.ProjectOnPlane(directionToCenter, Vector3.up), Vector3.up);
+    }
+
     private void SpawnRandomFish()
     {
         Vector3 randomDirection = Random.insideUnitSphere.normalized;
         Vector3 spawnPosition = player.position + randomDirection * spawnRadius;
-        
-        // Making sure the fish spawns 50 meters below the player
         spawnPosition.y = player.position.y - 50f;
 
-        int randomFishIndex = Random.Range(0, fishPrefabs.Length);
-        GameObject fish = Instantiate(fishPrefabs[randomFishIndex], spawnPosition, Quaternion.identity);
 
-        // Optionally destroy the fish after a certain amount of time to prevent too many objects in the scene
-        Destroy(fish, 14f); //change depending on the speed (time for 50 meters * 2)
+        int randomFishIndex = Random.Range(0, fishPrefabs.Length);
+       // SpawnFish(fishPrefabs[randomFishIndex], spawnPosition, randomRotation);
+
+        Quaternion randomRotation = RandomRotationAvoidingCenter(spawnPosition);
+        SpawnFish(fishPrefabs[randomFishIndex], spawnPosition, randomRotation);
     }
 
     // Function to spawn fish at a specific depth
@@ -57,14 +79,33 @@ public class FishSpawner : MonoBehaviour
     {
         Vector3 randomDirection = Random.insideUnitSphere.normalized;
         Vector3 spawnPosition = player.position + randomDirection * spawnRadius;
-
-        // Set the fish's depth
         spawnPosition.y = depth;
 
+        // Quaternion randomRotation = RandomRotationAvoidingPlayer(spawnPosition);
+
         int randomFishIndex = Random.Range(0, fishPrefabs.Length);
-        GameObject fish = Instantiate(fishPrefabs[randomFishIndex], spawnPosition, Quaternion.identity);
+        //SpawnFish(fishPrefabs[randomFishIndex], spawnPosition, randomRotation);
         
-        // Optionally destroy the fish after a certain amount of time to prevent too many objects in the scene
-        Destroy(fish, 14f); //change depending on the speed (time for 50 meters *2)
+
+        Quaternion rotation;
+        if (depth >= -100f)
+        {
+            rotation = InitialSpawnRotation(spawnPosition);
+        }
+        else
+        {
+            rotation = RandomRotationAvoidingCenter(spawnPosition);
+        }
+    
+        SpawnFish(fishPrefabs[randomFishIndex], spawnPosition, rotation);
+    }
+
+
+    private Quaternion RandomRotationAvoidingCenter(Vector3 spawnPosition)
+    {
+        Vector3 directionToCenter = (new Vector3(0, spawnPosition.y, 0) - spawnPosition).normalized;
+        Vector3 randomRotationAxis = Vector3.Cross(directionToCenter, Random.insideUnitSphere).normalized;
+
+        return Quaternion.AngleAxis(Random.Range(0, 360f), randomRotationAxis);
     }
 }
