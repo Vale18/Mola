@@ -144,27 +144,29 @@ namespace StylizedWater2
             {
                 for (int i = 0; i < Integrations.Length; i++)
                 {
-                    string guid = Integrations[i].libraryGUID;
-
-                    //Would be the case for None and UnityFog
-                    if (guid == string.Empty) continue;
-
-                    string libraryPath = AssetDatabase.GUIDToAssetPath(guid);
-
-                    if (libraryPath != string.Empty)
+                    //Always installed anyway
+                    if (Integrations[i].asset == Assets.None || Integrations[i].asset == Assets.UnityFog) continue;
+                    
+                    #if SWS_DEV
+                    //Gets in the way of testing and using default Unity fog
+                    if(Integrations[i].asset == Assets.SCPostEffects || Integrations[i].asset == Assets.Colorful) continue;
+                    #endif
+                    
+                    if (IsFogLibraryPresent(Integrations[i]))
                     {
                         return Integrations[i];
                     }
                 }
 
-                return GetIntegration(Assets.UnityFog); //Default Unity
+                //No third-party assets installed, default to Unity fog
+                return GetIntegration(Assets.UnityFog);
             }
         }
 
         public class Keywords
         {
             public const string UNDERWATER_ENABLED = "UNDERWATER_ENABLED";
-            public const string MODIFIERS_ENABLED = "MODIFIERS_ENABLED";
+            public const string DYNAMIC_EFFECTS_ENABLED = "DYNAMIC_EFFECTS_ENABLED";
         }
 
         public static class TemplateParser
@@ -206,11 +208,11 @@ namespace StylizedWater2
 
             public const string TESSELLATION_NAME_SUFFIX = " (Tessellation)";
 
-            public static string CreateShaderCode(string templatePath, WaterShaderImporter importer)
+            public static string CreateShaderCode(string templatePath, WaterShaderImporter importer, bool tessellation = false)
             {
                 string[] lines = File.ReadAllLines(templatePath);
 
-                CreateShaderCode(templatePath, ref lines, importer);
+                CreateShaderCode(templatePath, ref lines, importer, tessellation);
 
                 string shaderlab = String.Join(Environment.NewLine, lines);
 
@@ -221,10 +223,12 @@ namespace StylizedWater2
             {
                 //Extension installation states
                 var underwaterInstalled = StylizedWaterEditor.UnderwaterRenderingInstalled();
-                var surfaceModifiersInstalled = StylizedWaterEditor.SurfaceModifiersInstalled();
+                var dynamicEffectsInstalled = StylizedWaterEditor.DynamicEffectsInstalled();
 
                 Fog.Integration fogIntegration = importer.settings.autoIntegration ? Fog.GetFirstInstalled() : Fog.GetIntegration(importer.settings.fogIntegration);
 
+                AssetInfo.VersionChecking.CheckUnityVersion();
+                
                 //Shader name
                 string prefix = importer.settings.hidden ? "Hidden/" : string.Empty;
                 string suffix = tessellation ? TESSELLATION_NAME_SUFFIX : string.Empty;
@@ -262,13 +266,15 @@ namespace StylizedWater2
                         continue;
                     }
 
+                    if (Matches("%compiler_version%"))
+                    {
+                        AddLine($"//Shader generator version: {new Version(AssetInfo.SHADER_GENERATOR_VERSION_MAJOR, AssetInfo.SHADER_GENERATOR_MINOR, AssetInfo.SHADER_GENERATOR_PATCH)}");
+                        continue;
+                    }
+                    
                     if (Matches("%unity_version%"))
                     {
-                        string version = UnityEditorInternal.InternalEditorUtility.GetFullUnityVersion();
-                        //Remove GUID in parenthesis 
-                        version = version.Substring(0, version.LastIndexOf(" (", StringComparison.Ordinal));
-
-                        AddLine($"//Unity version: " + version);
+                        AddLine($"//Unity version: {AssetInfo.VersionChecking.GetUnityVersion()}");
                         continue;
                     }
 
@@ -282,6 +288,8 @@ namespace StylizedWater2
                     {
                         foreach (WaterShaderImporter.Directive directive in importer.settings.customIncludeDirectives)
                         {
+                            if(directive.enabled == false) continue;
+                            
                             string directivePrefix = string.Empty;
 
                             switch (directive.type)
@@ -316,12 +324,24 @@ namespace StylizedWater2
                         continue;
                     }
 
+                    if (Matches("%pragma_renderers%"))
+                    {
+                        if (tessellation)
+                        {
+                            AddLine("#pragma exclude_renderers gles");
+                        }
+                        
+                        continue;
+                    }
+
                     if (line.StartsWith("Fallback"))
                     {
                         if (tessellation)
                         {
                             //Fallback to non-tessellation variant (with without suffix)
                             AddLine($"Fallback \"{shaderName}\"");
+                            //Test, disable fallback
+                            //AddLine(line);
                         }
                         else
                         {
@@ -338,7 +358,7 @@ namespace StylizedWater2
                         {
                             if (tessellation)
                             {
-                                AddLine("_TessValue(\"Max subdivisions\", Range(1, 32)) = 16");
+                                AddLine("_TessValue(\"Max subdivisions\", Range(1, 64)) = 16");
                                 AddLine("_TessMin(\"Start Distance\", Float) = 0");
                                 AddLine("_TessMax(\"End Distance\", Float) = 15");
                             }
@@ -358,26 +378,28 @@ namespace StylizedWater2
 
                             continue;
                         }
-
-                        if (Matches("%multi_compile_fog%"))
-                        {
-                            if (importer.settings.fogIntegration == Fog.Assets.UnityFog)
-                            {
-                                AddLine("#pragma multi_compile_fog");
-                            }
-
-                            continue;
-                        }
-
+                        
                         if (line.Contains("%render_queue_offset%"))
                         {
-                            line = line.Replace("%render_queue_offset%", (fogIntegration.asset == Fog.Assets.COZY ? 2 : 0).ToString());
+                            int offset = 0;
+
+                            switch (fogIntegration.asset)
+                            {
+                                case Fog.Assets.COZY: offset = 2;
+                                    break;
+                                //case Fog.Assets.AtmosphericHeightFog : offset = 2; //Should actually render after the fog sphere, but asset inherently relies on double fog shading it seems?
+                                    //break;
+                                default: offset = 0;
+                                    break;
+                            }
+                            
+                            line = line.Replace("%render_queue_offset%", offset.ToString());
                             AddLine(line);
 
                             continue;
                         }
 
-                        if (Matches("%cozy_stencil%"))
+                        if (Matches("%stencil%"))
                         {
                             if (importer.settings.fogIntegration == Fog.Assets.COZY)
                             {
@@ -386,18 +408,8 @@ namespace StylizedWater2
 
                             continue;
                         }
-
-                        if (Matches("%multi_compile AtmosphericHeightFog%"))
-                        {
-                            if (importer.settings.fogIntegration == Fog.Assets.AtmosphericHeightFog)
-                            {
-                                AddLine("#pragma multi_compile AHF_NOISEMODE_OFF AHF_NOISEMODE_PROCEDURAL3D");
-                            }
-
-                            continue;
-                        }
                     }
-
+                    
                     if (Matches("%multi_compile_shadows%"))
                     {
                         #if !UNITY_2021_1_OR_NEWER
@@ -430,28 +442,20 @@ namespace StylizedWater2
 
                         continue;
                     }
-
-                    if (Matches("%multi_compile surface modifiers%"))
+                    
+                    if (Matches("%multi_compile dynamic effects%"))
                     {
-                        if (surfaceModifiersInstalled)
+                        if (dynamicEffectsInstalled)
                         {
-                            AddLine("#pragma multi_compile _ MODIFIERS_ENABLED");
+                            AddLine("#pragma multi_compile _ DYNAMIC_EFFECTS_ENABLED");
                         }
 
                         continue;
                     }
-
-                    if (Matches("%multi_compile wave sim%"))
-                    {
-                        #if SWS_DEV
-                        //if (???)
-                        {
-                            AddLine("#pragma multi_compile _ WAVE_SIMULATION");
-                        }
-                        #endif
-
-                        continue;
-                    }
+                    
+                    //Legacy, strip line
+                    if (Matches("%multi_compile surface modifiers%")) continue;
+                    if (Matches("%multi_compile wave sim%")) continue;
 
                     if (line.StartsWith("#include "))
                     {
@@ -553,34 +557,40 @@ namespace StylizedWater2
             #endif
 
             private readonly bool isInstalledUnderwater;
-            private readonly bool isInstalledSurfaceModifiers;
+            private readonly bool isInstalledDynamicEffects;
 
             private List<ShaderKeyword> StrippedKeywords = new List<ShaderKeyword>();
 
             //Extensions
             private readonly ShaderKeyword UNDERWATER_ENABLED = new ShaderKeyword(ShaderConfigurator.Keywords.UNDERWATER_ENABLED);
-            private readonly ShaderKeyword MODIFIERS_ENABLED = new ShaderKeyword(ShaderConfigurator.Keywords.MODIFIERS_ENABLED);
+            private readonly ShaderKeyword DYNAMIC_EFFECTS_ENABLED = new ShaderKeyword(ShaderConfigurator.Keywords.DYNAMIC_EFFECTS_ENABLED);
 
-            //URP 10+
+            //URP 10+ (2020.3)
             private readonly ShaderKeyword _ADDITIONAL_LIGHT_SHADOWS = new ShaderKeyword("_ADDITIONAL_LIGHT_SHADOWS");
 
-            //URP 12+
+            //URP 12+ (2021.2)
             private readonly ShaderKeyword _REFLECTION_PROBE_BLENDING = new ShaderKeyword("_REFLECTION_PROBE_BLENDING");
             private readonly ShaderKeyword _REFLECTION_PROBE_BOX_PROJECTION = new ShaderKeyword("_REFLECTION_PROBE_BOX_PROJECTION");
             private readonly ShaderKeyword DYNAMICLIGHTMAP_ON = new ShaderKeyword("DYNAMICLIGHTMAP_ON");
             private readonly ShaderKeyword DEBUG_DISPLAY = new ShaderKeyword("DEBUG_DISPLAY");
+            private readonly ShaderKeyword _CLUSTERED_RENDERING = new ShaderKeyword("_CLUSTERED_RENDERING");
             private readonly ShaderKeyword _LIGHT_LAYERS = new ShaderKeyword("_LIGHT_LAYERS");
             private readonly ShaderKeyword _LIGHT_COOKIES = new ShaderKeyword("_LIGHT_COOKIES");
 
-            //URP 14+
+            //URP 14+ (2022.2)
             private readonly ShaderKeyword _FORWARD_PLUS = new ShaderKeyword("_FORWARD_PLUS");
-
+            private readonly ShaderKeyword _WRITE_RENDERING_LAYERS = new ShaderKeyword("_WRITE_RENDERING_LAYERS");
+            
+            //URP 15+ (2023.1)
+            private readonly ShaderKeyword EVALUATE_SH_MIXED = new ShaderKeyword("EVALUATE_SH_MIXED");
+            private readonly ShaderKeyword EVALUATE_SH_VERTEX = new ShaderKeyword("EVALUATE_SH_VERTEX");
+            
             //Note: Constructor is called once, when building starts
             public KeywordStripper()
             {
                 //Extension states
                 isInstalledUnderwater = StylizedWaterEditor.UnderwaterRenderingInstalled();
-                isInstalledSurfaceModifiers = StylizedWaterEditor.SurfaceModifiersInstalled();
+                isInstalledDynamicEffects = StylizedWaterEditor.DynamicEffectsInstalled();
 
                 StrippedKeywords.Clear();
 
@@ -591,10 +601,10 @@ namespace StylizedWater2
                     StrippedKeywords.Add(UNDERWATER_ENABLED);
                 }
 
-                if (isInstalledSurfaceModifiers == false)
+                if (isInstalledDynamicEffects == false)
                 {
-                    Shader.DisableKeyword(ShaderConfigurator.Keywords.MODIFIERS_ENABLED);
-                    StrippedKeywords.Add(MODIFIERS_ENABLED);
+                    Shader.DisableKeyword(ShaderConfigurator.Keywords.DYNAMIC_EFFECTS_ENABLED);
+                    StrippedKeywords.Add(DYNAMIC_EFFECTS_ENABLED);
                 }
 
                 #if !UNITY_2020_2_OR_NEWER //URP 10+
@@ -606,12 +616,17 @@ namespace StylizedWater2
                 StrippedKeywords.Add(_REFLECTION_PROBE_BOX_PROJECTION);
                 StrippedKeywords.Add(DYNAMICLIGHTMAP_ON);
                 StrippedKeywords.Add(DEBUG_DISPLAY);
+                StrippedKeywords.Add(_CLUSTERED_RENDERING);
                 StrippedKeywords.Add(_LIGHT_LAYERS);
                 StrippedKeywords.Add(_LIGHT_COOKIES);
                 #endif
 
                 #if !UNITY_2022_2_OR_NEWER //URP 14+
                 StrippedKeywords.Add(_FORWARD_PLUS);
+                StrippedKeywords.Add(_WRITE_RENDERING_LAYERS);
+
+                StrippedKeywords.Add(EVALUATE_SH_MIXED);
+                StrippedKeywords.Add(EVALUATE_SH_VERTEX);
                 #endif
 
                 LogInitialization();
@@ -719,7 +734,7 @@ namespace StylizedWater2
                 Log(string.Empty);
 
                 Log("[Extension] Underwater Rendering installed: " + isInstalledUnderwater);
-                Log("[Extension] Surface Modifiers installed: " + isInstalledSurfaceModifiers);
+                Log("[Extension] Dynamic Effects installed: " + isInstalledDynamicEffects);
                 #endif
             }
 

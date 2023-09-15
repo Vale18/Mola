@@ -25,7 +25,7 @@ namespace StylizedWater2
 {
     public static partial class Buoyancy
     {
-        internal static bool SurfaceModifiersAvailable;
+        internal static bool ComputeReadbackAvailable;
         
         private static WaveParameters waveParameters = new WaveParameters();
         private static Material lastMaterial;
@@ -290,7 +290,7 @@ namespace StylizedWater2
 				GetMaterialParameters(waterMat);
             }
 
-            TIME = (_TimeParameters * waveParameters.animationSpeed * waveParameters.speed * speed);
+            TIME = (_TimeParameters * -waveParameters.animationSpeed * waveParameters.speed * speed);
             
             RecalculateParameters();
 
@@ -385,7 +385,7 @@ namespace StylizedWater2
         /// <returns>Wave height, in world-space.</returns>
         public static void SampleWaves(ref BuoyancySample sample, Material waterMat, float waterLevel, bool dynamicMaterial)
         {
-            if (!SurfaceModifiersAvailable)
+            if (!ComputeReadbackAvailable)
             {
                 for (int i = 0; i < sample.inputPositions.Length; i++)
                 {

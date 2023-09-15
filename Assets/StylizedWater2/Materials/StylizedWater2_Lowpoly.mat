@@ -11,8 +11,8 @@ Material:
   m_Shader: {fileID: -6465566751694194690, guid: d7b0192b9bf19c949900035fa781fdc4,
     type: 3}
   m_ShaderKeywords: _ADVANCED_SHADING _CROSSPAN_INTERSECTION _DEPTHEXP_ON _DEPTH_TEX
-    _FLAT_SHADING _NORMALMAP _RECEIVE_SHADOWS_OFF _REFRACTION _SHARP_INERSECTION
-    _TRANSLUCENCY _WAVES
+    _FLAT_SHADING _NORMALMAP _RECEIVE_SHADOWS_OFF _SHARP_INERSECTION _TRANSLUCENCY
+    _WAVES _ZCLIP_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -82,6 +82,18 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlphaClip: 0
     - _AnimationSpeed: 1
@@ -92,6 +104,7 @@ Material:
     - _CausticsOn: 0
     - _CausticsSpeed: 0.1
     - _CausticsTiling: 0.5
+    - _ColorAbsorption: 0
     - _CrossPan_IntersectionOn: 1
     - _Cull: 2
     - _Cutoff: 0.5
@@ -100,7 +113,7 @@ Material:
     - _DepthHorizontal: 1
     - _DepthMode: 0
     - _DepthTexture: 1
-    - _DepthVertical: 4
+    - _DepthVertical: 4.2
     - _DisableDepthTexture: 0
     - _DistanceNormalsOn: 0
     - _DistanceNormalsTiling: 0.25
@@ -109,11 +122,17 @@ Material:
     - _EnvironmentReflections: 1
     - _EnvironmentReflectionsOn: 1
     - _FlatShadingOn: 1
+    - _FoamBaseAmount: 1
+    - _FoamClipping: 0
+    - _FoamDistortion: 0.1
     - _FoamOn: 0
     - _FoamOpacity: 1
     - _FoamSize: 0.695
     - _FoamSpeed: 0.1
+    - _FoamSubSpeed: -0.25
+    - _FoamSubTiling: 0.5
     - _FoamTiling: 0.39999992
+    - _FoamWaveAmount: 0
     - _FoamWaveMask: 1
     - _FoamWaveMaskExp: 1
     - _GlossMapScale: 0
@@ -134,6 +153,8 @@ Material:
     - _NormalMapOn: 1
     - _NormalSpeed: 0.2
     - _NormalStrength: 0
+    - _NormalSubSpeed: -0.5
+    - _NormalSubTiling: 0.5
     - _NormalTiling: 1
     - _OcclusionStrength: 1
     - _PlanarReflectionsEnabled: 0
@@ -149,8 +170,9 @@ Material:
     - _ReflectionFresnel: 5
     - _ReflectionLighting: 1
     - _ReflectionStrength: 0.147
-    - _RefractionOn: 1
-    - _RefractionStrength: 0.401
+    - _RefractionChromaticAberration: 1
+    - _RefractionOn: 0
+    - _RefractionStrength: 0.118
     - _RiverModeOn: 0
     - _SHARP_INERSECTIONOn: 1
     - _ShadingMode: 1
@@ -175,6 +197,9 @@ Material:
     - _SunReflectionSize: 0.95
     - _SunReflectionStrength: 1
     - _Surface: 0
+    - _TessMax: 15
+    - _TessMin: 0
+    - _TessValue: 16
     - _Texture_IntersectionOn: 0
     - _Translucency: 1
     - _TranslucencyCurvatureMask: 1

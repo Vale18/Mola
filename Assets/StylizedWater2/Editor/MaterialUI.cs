@@ -16,7 +16,7 @@ using UnityEngine.Rendering.Universal;
 
 namespace StylizedWater2
 {
-    public class MaterialUI : ShaderGUI
+    public partial class MaterialUI : ShaderGUI
     {
 #if URP
         private MaterialEditor materialEditor;
@@ -35,6 +35,8 @@ namespace StylizedWater2
 
         private MaterialProperty _BaseColor;
         private MaterialProperty _ShallowColor;
+        private MaterialProperty _ColorAbsorption;
+
         //private MaterialProperty _Smoothness;
         //private MaterialProperty _Metallic;
         
@@ -50,7 +52,6 @@ namespace StylizedWater2
         private MaterialProperty _TranslucencyStrength;
         private MaterialProperty _TranslucencyExp;
         private MaterialProperty _TranslucencyCurvatureMask;
-        private MaterialProperty _TranslucencyReflectionMask;
         private MaterialProperty _EdgeFade;
         private MaterialProperty _ShadowStrength;
 
@@ -60,6 +61,7 @@ namespace StylizedWater2
         private MaterialProperty _CausticsSpeed;
         private MaterialProperty _CausticsDistortion;
         private MaterialProperty _RefractionStrength;
+        private MaterialProperty _RefractionChromaticAberration;
 
         private MaterialProperty _UnderwaterSurfaceSmoothness;
         private MaterialProperty _UnderwaterRefractionOffset;
@@ -78,19 +80,24 @@ namespace StylizedWater2
 
         private MaterialProperty _FoamTex;
         private MaterialProperty _FoamColor;
-        private MaterialProperty _FoamSize;
         private MaterialProperty _FoamSpeed;
+        private MaterialProperty _FoamSubSpeed;
         private MaterialProperty _FoamTiling;
-        private MaterialProperty _FoamWaveMask;
-        private MaterialProperty _FoamWaveMaskExp;
+        private MaterialProperty _FoamSubTiling;
+        private MaterialProperty _FoamDistortion;
+        private MaterialProperty _FoamWaveAmount;
+        private MaterialProperty _FoamBaseAmount;
+        private MaterialProperty _FoamClipping;
         private MaterialProperty _VertexColorFoam;
 
         private MaterialProperty _BumpMap;
         private MaterialProperty _BumpMapSlope;
         private MaterialProperty _BumpMapLarge;
         private MaterialProperty _NormalTiling;
+        private MaterialProperty _NormalSubTiling;
         private MaterialProperty _NormalStrength;
         private MaterialProperty _NormalSpeed;
+        private MaterialProperty _NormalSubSpeed;
         private MaterialProperty _DistanceNormalsFadeDist;
         private MaterialProperty _DistanceNormalsTiling;
         private MaterialProperty _SparkleIntensity;
@@ -162,6 +169,9 @@ namespace StylizedWater2
         private bool transparentShadowsEnabled;
         private bool depthAfterTransparents = false;
         private bool underwaterRenderingInstalled;
+
+        private ShaderConfigurator.Fog.Integration fogIntegration;
+        private bool fogAutomatic;
         
         private void FindProperties(MaterialProperty[] props, Material material)
         {
@@ -195,6 +205,7 @@ namespace StylizedWater2
 
             _BaseColor = FindProperty("_BaseColor", props);
             _ShallowColor = FindProperty("_ShallowColor", props);
+            _ColorAbsorption = FindProperty("_ColorAbsorption", props);
             //_Smoothness = FindProperty("_Smoothness", props);
             //_Metallic = FindProperty("_Metallic", props);
             _HorizonColor = FindProperty("_HorizonColor", props);
@@ -209,7 +220,6 @@ namespace StylizedWater2
             _TranslucencyStrength = FindProperty("_TranslucencyStrength", props);
             _TranslucencyExp = FindProperty("_TranslucencyExp", props);
             _TranslucencyCurvatureMask = FindProperty("_TranslucencyCurvatureMask", props);
-            _TranslucencyReflectionMask = FindProperty("_TranslucencyReflectionMask", props);
             _EdgeFade = FindProperty("_EdgeFade", props);
 
             _CausticsOn = FindProperty("_CausticsOn", props);
@@ -219,6 +229,7 @@ namespace StylizedWater2
             _CausticsSpeed = FindProperty("_CausticsSpeed", props);
             _CausticsDistortion = FindProperty("_CausticsDistortion", props);
             _RefractionStrength = FindProperty("_RefractionStrength", props);
+            _RefractionChromaticAberration = FindProperty("_RefractionChromaticAberration", props);
             
             _UnderwaterSurfaceSmoothness = FindProperty("_UnderwaterSurfaceSmoothness", props);
             _UnderwaterRefractionOffset = FindProperty("_UnderwaterRefractionOffset", props);
@@ -235,18 +246,23 @@ namespace StylizedWater2
             
             _FoamTex = FindProperty("_FoamTex", props);
             _FoamColor = FindProperty("_FoamColor", props);
-            _FoamSize = FindProperty("_FoamSize", props);
             _FoamSpeed = FindProperty("_FoamSpeed", props);
+            _FoamSubSpeed = FindProperty("_FoamSubSpeed", props);
             _FoamTiling = FindProperty("_FoamTiling", props);
-            _FoamWaveMask = FindProperty("_FoamWaveMask", props);
-            _FoamWaveMaskExp = FindProperty("_FoamWaveMaskExp", props);
+            _FoamSubTiling = FindProperty("_FoamSubTiling", props);
+            _FoamDistortion = FindProperty("_FoamDistortion", props);
+            _FoamBaseAmount = FindProperty("_FoamBaseAmount", props);
+            _FoamClipping = FindProperty("_FoamClipping", props);
+            _FoamWaveAmount = FindProperty("_FoamWaveAmount", props);
             _VertexColorFoam = FindProperty("_VertexColorFoam", props);
             
             _BumpMap = FindProperty("_BumpMap", props);
             _BumpMapSlope = FindProperty("_BumpMapSlope", props);
             _NormalTiling = FindProperty("_NormalTiling", props);
+            _NormalSubTiling = FindProperty("_NormalSubTiling", props);
             _NormalStrength = FindProperty("_NormalStrength", props);
             _NormalSpeed = FindProperty("_NormalSpeed", props);
+            _NormalSubSpeed = FindProperty("_NormalSubSpeed", props);
 
             _BumpMapLarge = FindProperty("_BumpMapLarge", props);
             _DistanceNormalsFadeDist = FindProperty("_DistanceNormalsFadeDist", props);
@@ -298,10 +314,10 @@ namespace StylizedWater2
 
             advancedShadingContent = new GUIContent("Advanced",
                 "Advanced mode does:\n\n" +
-                "• Chromatic refraction\n" +
-                "• Higher accuracy normal map blending\n" +
+                "• Physically-based refraction + chromatic aberration\n" +
                 "• Caustics & Translucency shading for point/spot lights\n" +
-                "• Double sampling of depth, for accurate refraction\n" +
+                "• Caustics masked in underwater shadows" +
+                "• Double sampling of water depth/fog, for accurate refraction\n" +
                 "• Accurate blending of light color for translucency shading\n" +
                 "• Additional texture sample for distance normals");
         }
@@ -321,7 +337,7 @@ namespace StylizedWater2
             sections.Add(wavesSection = new UI.Material.Section(materialEditorIn,"WAVES", new GUIContent("Waves", "Parametric gerstner waves, which modify the surface curvature and animate the mesh's vertices")));
             
             underwaterRenderingInstalled = StylizedWaterEditor.UnderwaterRenderingInstalled();
-            
+
             #if URP
             transparentShadowsEnabled = PipelineUtilities.TransparentShadowsEnabled();
             #if UNITY_2022_2_OR_NEWER
@@ -339,6 +355,12 @@ namespace StylizedWater2
                     UpgradeProperties((Material)target);
                 }
             }
+
+            Material mat = (Material)materialEditorIn.target;
+            WaterShaderImporter importer = AssetImporter.GetAtPath(AssetDatabase.GetAssetOrScenePath(mat.shader)) as WaterShaderImporter;
+            
+            fogAutomatic = importer.settings.autoIntegration;
+            fogIntegration = importer.settings.autoIntegration ? ShaderConfigurator.Fog.GetFirstInstalled() : ShaderConfigurator.Fog.GetIntegration(importer.settings.fogIntegration);
             
             initialized = true;
         }
@@ -348,6 +370,8 @@ namespace StylizedWater2
             initialized = false;
         }
 
+        partial void DrawDynamicEffectsUI();
+
         //https://github.com/Unity-Technologies/Graphics/blob/648184ec8405115e2fcf4ad3023d8b16a191c4c7/com.unity.render-pipelines.universal/Editor/ShaderGUI/BaseShaderGUI.cs
         public override void OnGUI(MaterialEditor materialEditorIn, MaterialProperty[] props)
         {
@@ -356,6 +380,10 @@ namespace StylizedWater2
             materialEditor.SetDefaultGUIWidths();
             materialEditor.UseDefaultMargins();
             EditorGUIUtility.labelWidth = 0f;
+            
+            #if UNITY_2022_2_OR_NEWER
+            //Negate room made for material override UI elements       
+            #endif
 
             Material material = materialEditor.target as Material;
 
@@ -379,11 +407,13 @@ namespace StylizedWater2
 
         public void ShaderPropertiesGUI(Material material)
         {
-            EditorGUI.BeginChangeCheck();
-            
             DrawHeader();
             
+            DrawDynamicEffectsUI();
+            
             EditorGUILayout.Space();
+            
+            EditorGUI.BeginChangeCheck();
             
             DrawGeneral();
             DrawRendering(material);
@@ -414,9 +444,10 @@ namespace StylizedWater2
             }
         }
 
+        //Material sphere preview is mostly useless, due to simplistic rendering. Overlay an icon instead
         public override void OnMaterialPreviewGUI(MaterialEditor materialEditor, Rect rect, GUIStyle background)
         {
-            UI.Material.DrawMaterialHeader(materialEditor, rect, background);
+            GUI.DrawTexture(rect, UI.AssetIcon, ScaleMode.ScaleToFit);
         }
 
         void DrawNotifications()
@@ -483,6 +514,12 @@ namespace StylizedWater2
         {
             Rect rect = EditorGUILayout.BeginHorizontal();
             
+            #if UNITY_2022_2_OR_NEWER
+            //Negate room made for parameter locking (material variants functionality)
+            rect.xMin -= 15f;
+            rect.yMin += 5f;
+            #endif
+            
             GUIContent c = new GUIContent("Version " + AssetInfo.INSTALLED_VERSION);
             rect.width = EditorStyles.label.CalcSize(c).x;
             //rect.x += (rect.width * 2f);
@@ -536,6 +573,11 @@ namespace StylizedWater2
             GUILayout.Space(3f);
             
             DrawNotifications();
+            
+            if (fogIntegration.asset != ShaderConfigurator.Fog.Assets.UnityFog)
+            {
+                EditorGUILayout.LabelField($"Active fog integration: {fogIntegration.name}" + (fogAutomatic ? " (Automatic)" : ""), EditorStyles.miniLabel);
+            }
         }
         
         #region Sections
@@ -559,7 +601,7 @@ namespace StylizedWater2
 
                 UI.Material.DrawVector2(_Direction, "Direction");
                 UI.Material.DrawFloatField(_Speed, label:"Speed");
-                
+
                 #if UNITY_2020_2_OR_NEWER
                 if (EditorWindow.focusedWindow && EditorWindow.focusedWindow.GetType() == typeof(SceneView))
                 {
@@ -778,14 +820,13 @@ namespace StylizedWater2
                 
                 EditorGUILayout.Space();
 
-                DrawShaderProperty(_TranslucencyOn, new GUIContent("Translucency", "Creates the appearance of sun light passing through the water and scattering.\n\nNote that this mostly visible at grazing light angle"));
+                DrawShaderProperty(_TranslucencyOn, new GUIContent("Translucency", "Creates the appearance of sun light passing through the water and scattering.\n\nNote that this is mostly visible at grazing light angle"));
 
                 if (_TranslucencyOn.floatValue > 0 || _TranslucencyOn.hasMixedValue)
                 {
                     DrawShaderProperty(_TranslucencyStrength, new GUIContent("Strength", "Acts as a multiplier for the light's intensity"), 1);
                     DrawShaderProperty(_TranslucencyExp, new GUIContent("Exponent", "Essentially controls the width/scale of the effect"), 1);
                     DrawShaderProperty(_TranslucencyCurvatureMask, new GUIContent("Curvature mask", "Masks the effect by the orientation of the surface. Surfaces facing away from the sun will receive less of an effect. On sphere mesh, this would push the effect towards the edges/silhouette."), 1);
-                    DrawShaderProperty(_TranslucencyReflectionMask, new GUIContent("Reflection Mask", "Controls how strongly reflections are laid over the effect. A value of 1 is physically accurate"), 1);
                 }
                 
                 EditorGUILayout.Space();
@@ -812,13 +853,24 @@ namespace StylizedWater2
                     EditorGUILayout.Space();
 
                     EditorGUILayout.LabelField("Fog/Density", EditorStyles.boldLabel);
-                    DrawShaderProperty(_DepthVertical, new GUIContent("Distance Depth", "Distance measured from the camera to the surface behind the water. Water turns denser the more the camera looks along it"));
-                    DrawShaderProperty(_DepthHorizontal, new GUIContent("Vertical Depth", "Density as measured from the water surface, straight down"));
+                    DrawShaderProperty(_DepthVertical, new GUIContent("Distance Depth", "Distance measured from the water surface, to the geometry behind it, along the camera's viewing angle. Water turns denser the more the camera looks along the water surface, and through it."));
+                    DrawShaderProperty(_DepthHorizontal, new GUIContent("Vertical Depth", "Density as measured from the water surface, straight down. This acts as a type of artificial height fog."));
                     
                     DrawShaderProperty(_DepthExp, new GUIContent("Exponential", tooltip:"Exponential depth works best for shallow water and relatively flat shores"), 1);
                 }
                 
                 EditorGUILayout.Space();
+                
+                if (_ShadingMode.floatValue == 1 || _ShadingMode.hasMixedValue) //Advanced shading
+                {
+                    using (new EditorGUI.DisabledGroupScope(_RefractionOn.floatValue == 0 && !_RefractionOn.hasMixedValue))
+                    {
+                        DrawShaderProperty(_ColorAbsorption, new GUIContent(_ColorAbsorption.displayName, "Darkens the underwater color, based on the water's depth. This is a particular physical property of water that contributes to a realistic appearance."));
+                    }
+                    if (_RefractionOn.floatValue == 0) EditorGUILayout.HelpBox("Requires the Refraction feature to be enabled", MessageType.None);
+                    
+                    EditorGUILayout.Space();
+                }
 
                 DrawShaderProperty(_VertexColorDepth, new GUIContent("Vertex color depth (G)", "The Green vertex color channel subtracts (visual) depth from the water, making it appear shallow. When River Mode is enabled, this controls the complete opacity of the material instead"));
                 using (new EditorGUI.DisabledGroupScope(_DisableDepthTexture.floatValue == 1f && !_DisableDepthTexture.hasMixedValue))
@@ -858,9 +910,21 @@ namespace StylizedWater2
                     {
                         materialEditor.TextureProperty(_BumpMapSlope, "River slopes");
                     }
-                    UI.Material.DrawFloatTicker(_NormalTiling, "Tiling");
-                    UI.Material.DrawFloatTicker(_NormalSpeed, "Speed multiplier");
-
+                    
+                    EditorGUILayout.LabelField("Tiling & Offset", EditorStyles.boldLabel);
+                    UI.Material.DrawFloatTicker(_NormalTiling, tooltip:"Determines how often the texture repeats over the UV coordinates. Smaller values result in the texture being stretched larger, higher numbers means it becomes smaller");
+                    EditorGUI.indentLevel++;
+                        UI.Material.DrawFloatTicker(_NormalSubTiling, "Sub-layer (multiplier)", "The effect uses a 2nd texture sample, for variety. This value controls the speed of this layer");
+                    EditorGUI.indentLevel--;
+                    UI.Material.DrawFloatTicker(_NormalSpeed, tooltip:"[Multiplied by the animation speed set under the General tab]\n\nControls how fast the texture moves in the animation direction. A negative value (-) makes it move in the opposite direction", showReverse:true);
+                    EditorGUI.indentLevel++;
+                        UI.Material.DrawFloatTicker(_NormalSubSpeed, "Sub-layer (multiplier)", tooltip: "Multiplier for the 2nd texture sample.", showReverse:true);
+                    EditorGUI.indentLevel--;
+                    if (_RiverModeOn.floatValue > 0 && _NormalSubSpeed.floatValue < 0)
+                    {
+                        EditorGUILayout.HelpBox("River Mode is enabled, negative speed values are ignored", MessageType.None);
+                    }
+                    
                     EditorGUILayout.Space();
 
                     DrawShaderProperty(_DistanceNormalsOn, new GUIContent("Distance normals", "Resamples normals in the distance, at a larger scale. At the cost some additional shading calculations, tiling artifacts can be greatly reduced"));
@@ -868,9 +932,9 @@ namespace StylizedWater2
                     if (_DistanceNormalsOn.floatValue > 0 || _DistanceNormalsOn.hasMixedValue)
                     {
                         materialEditor.TextureProperty(_BumpMapLarge, "Normal map");
-                        UI.Material.DrawFloatTicker(_DistanceNormalsTiling, "Tiling multiplier");
+                        UI.Material.DrawFloatTicker(_DistanceNormalsTiling, "Tiling");
 
-                        UI.Material.DrawMinMaxSlider(_DistanceNormalsFadeDist, 0f, 500, "Blend distance range", tooltip:"Min/max distance the effect should start to blend in");
+                        UI.Material.DrawMinMaxSlider(_DistanceNormalsFadeDist, 0f, 500, "Blend distance range", tooltip:"Min/max distance range (from the camera) the effect should to blend in");
                     }
                 }
 
@@ -897,7 +961,7 @@ namespace StylizedWater2
                     UI.Material.DrawFloatField(_CausticsBrightness, "Brightness", "The intensity of the incoming light controls how strongly the effect is visible. This parameter acts as a multiplier.");
                     if(!_CausticsBrightness.hasMixedValue) _CausticsBrightness.floatValue = Mathf.Max(0, _CausticsBrightness.floatValue);
 
-                    DrawShaderProperty(_CausticsDistortion, new GUIContent(_CausticsDistortion.displayName, "Distorted the caustics based on the normal map"));
+                    DrawShaderProperty(_CausticsDistortion, new GUIContent(_CausticsDistortion.displayName, "Distort the caustics based on the normal map"));
                     
                     EditorGUILayout.Space();
 
@@ -913,16 +977,26 @@ namespace StylizedWater2
 
                 EditorGUILayout.Space();
 
-                DrawShaderProperty(_RefractionOn, new GUIContent("Refraction", "Simulates how the surface behind the water appears distorted, because the light passes through the water curvy surface"));
+                DrawShaderProperty(_RefractionOn, new GUIContent("Refraction", "Simulates how the surface behind the water appears distorted, because the light passes through the water's curvy surface"));
 
                 if (_RefractionOn.floatValue == 1f || _RefractionOn.hasMixedValue)
                 {
+                    if (UniversalRenderPipeline.asset)
+                    {
+                        UI.DrawNotification(UniversalRenderPipeline.asset.opaqueDownsampling != Downsampling.None, "Opaque texture is rendering at a lower resolution, water may appear blurry");
+                    }
+                    
                     if (_NormalMapOn.floatValue == 0f && _WavesOn.floatValue == 0f)
                     {
-                        UI.DrawNotification("Refraction will have no effect if normals and waves are disabled", MessageType.Warning);
+                        UI.DrawNotification("Refraction will have little effect if normals and waves are disabled", MessageType.Warning);
                     }
                     
                     DrawShaderProperty(_RefractionStrength, new GUIContent("Strength", "Note: Distortion strength is influenced by the strength of the normal map texture"), 1);
+                    if (_ShadingMode.floatValue == 1f || _ShadingMode.hasMixedValue)
+                    {
+                        DrawShaderProperty(_RefractionChromaticAberration, new GUIContent("Chromatic Aberration (Max)", 
+                            "Creates a prims-like rainbow effect where the refraction is the strongest. Controls the maximum offset, and is based on refraction strength (both the parameter and the context)\n\nCan create some discrepancies in the underwater fog!"));
+                    }
                 }
                 else
                 {
@@ -954,30 +1028,47 @@ namespace StylizedWater2
             {
                 EditorGUILayout.Space();
                 
-                DrawShaderProperty(_FoamOn, new GUIContent("Enable", "Draws an cross-animated foam texture on the water surface"));
+                DrawShaderProperty(_FoamOn, new GUIContent("Enable", "Draws a cross-animated foam texture on the water surface"));
                 if (_FoamOn.floatValue > 0 || _FoamOn.hasMixedValue)
                 {
-                    materialEditor.TextureProperty(_FoamTex, "Texture (R=Mask)");
-                    UI.Material.DrawColorField(_FoamColor, true, "Color", "Color of the foam, the alpha channel controls opacity");
+                    materialEditor.TextureProperty(_FoamTex, "Texture (R)");
+                    
+                    EditorGUILayout.LabelField("Application", EditorStyles.boldLabel);
+                    DrawShaderProperty(_FoamBaseAmount, new GUIContent("Base amount", "Adds a uniform amount of foam"));
+                    DrawShaderProperty(_FoamClipping, new GUIContent("Clipping", "Gradually cuts off the texture, based on its gradient"));
+                    
                     DrawShaderProperty(_VertexColorFoam, new GUIContent("Vertex color painting (A)",
                         "Enable the usage of the vertex color Alpha channel to add foam"));
-
-                    DrawShaderProperty(_FoamSize, new GUIContent(_FoamSize.displayName, "Clips the texture based on its grayscale values. This means if the foam texture is a hard black/white texture, it has no effect"));
-
+                    
+                    UI.Material.DrawColorField(_FoamColor, true, "Color", "Color of the foam, the alpha channel controls opacity");
+                    
                     if (_RiverModeOn.floatValue > 0 || _RiverModeOn.hasMixedValue)
                     {
                         DrawShaderProperty(_SlopeFoam, new GUIContent(_SlopeFoam.displayName, "Control the amount of Surface Foam that draws on slopes"));
                     }
                     else
                     {
-                        DrawShaderProperty(_FoamWaveMask, new GUIContent(_FoamWaveMask.displayName, "Opt to only show the foam on the highest points of waves"));
-                        DrawShaderProperty(_FoamWaveMaskExp, new GUIContent("Exponent", "Pushes the mask more towards the top of the waves"), 1);
+                        DrawShaderProperty(_FoamWaveAmount, new GUIContent(_FoamWaveAmount.displayName, "Add foam to the highest points of waves"));
                     }
                     
                     EditorGUILayout.Space();
 
-                    UI.Material.DrawFloatTicker(_FoamTiling);
-                    UI.Material.DrawFloatTicker(_FoamSpeed);
+                    EditorGUILayout.LabelField("Tiling & Offset", EditorStyles.boldLabel);
+                    UI.Material.DrawFloatTicker(_FoamTiling, tooltip:"Determines how often the texture repeats over the UV coordinates. Smaller values result in the texture being stretched larger, higher numbers means it becomes smaller");
+                    EditorGUI.indentLevel++;
+                    UI.Material.DrawFloatTicker(_FoamSubTiling, "Sub-layer (multiplier)", "The effect uses a 2nd texture sample, for variety. This value controls the speed of this layer");
+                    EditorGUI.indentLevel--;
+                    UI.Material.DrawFloatTicker(_FoamSpeed, tooltip:"[Multiplied by the animation speed set under the General tab]\n\nControls how fast the texture moves in the animation direction. A negative value (-) makes it move in the opposite direction", showReverse:true);
+                    EditorGUI.indentLevel++;
+                    UI.Material.DrawFloatTicker(_FoamSubSpeed, "Sub-layer (multiplier)", tooltip:"Multiplier for the 2nd texture sample.", showReverse:true);
+                    EditorGUI.indentLevel--;
+                    if (_RiverModeOn.floatValue > 0 && _FoamSubSpeed.floatValue < 0)
+                    {
+                        EditorGUILayout.HelpBox("River Mode is enabled, negative speed values are ignored", MessageType.None);
+                    }
+                    EditorGUILayout.Space();
+
+                    DrawShaderProperty(_FoamDistortion, new GUIContent(_FoamDistortion.displayName, "Distorts the foam by the amount of vertical displacement, such as that created by waves"));
                 }
 
                 EditorGUILayout.Space();
@@ -1082,6 +1173,10 @@ namespace StylizedWater2
                     EditorGUILayout.LabelField("Directional Light", EditorStyles.boldLabel);
 
                     DrawShaderProperty(_SunReflectionStrength, new GUIContent("Strength", "This value is multiplied over the sun light's intensity"));
+                    if (UniversalRenderPipeline.asset)
+                    {
+                        if(UniversalRenderPipeline.asset.supportsHDR == false) EditorGUILayout.HelpBox("Note: HDR is disabled on the current pipeline asset", MessageType.None);
+                    }
                     if(!_SunReflectionStrength.hasMixedValue) _SunReflectionStrength.floatValue = Mathf.Max(0, _SunReflectionStrength.floatValue);
                     
                     DrawShaderProperty(_SunReflectionSize, new GUIContent("Size", "Determines how wide the reflection appears"));
@@ -1091,9 +1186,13 @@ namespace StylizedWater2
                     {
                         EditorGUILayout.Space();
 
-                        EditorGUILayout.LabelField("Point/Spot lights", EditorStyles.boldLabel);
+                        EditorGUILayout.LabelField("Point & Spot lights", EditorStyles.boldLabel);
 
                         DrawShaderProperty(_PointSpotLightReflectionStrength, new GUIContent("Strength", "This value is multiplied over the light's intensity"));
+                        if (UniversalRenderPipeline.asset)
+                        {
+                            if(UniversalRenderPipeline.asset.supportsHDR == false) EditorGUILayout.HelpBox("Note: HDR is disabled on the current pipeline asset", MessageType.None);
+                        }
                         if(!_PointSpotLightReflectionStrength.hasMixedValue) _PointSpotLightReflectionStrength.floatValue = Mathf.Max(0, _PointSpotLightReflectionStrength.floatValue);
                         
                         DrawShaderProperty(_PointSpotLightReflectionSize, new GUIContent("Size", "Specular reflection size for point/spot lights"));

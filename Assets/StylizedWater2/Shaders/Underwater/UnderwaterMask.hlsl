@@ -8,10 +8,6 @@
 #include "../Libraries/URP.hlsl"
 #include "../Libraries/Common.hlsl"
 
-#if MODIFIERS_ENABLED
-#include "../SurfaceModifiers/SurfaceModifiers.hlsl"
-#endif
-
 float _WaterLevel;
 float _ClipOffset;
 float _WaterLineWidth;
@@ -145,12 +141,10 @@ Varyings VertexWaterLine(Attributes input)
 
 	//Intersection point with water level when traveling along the plane's tangent
 	float3 samplePos = bottom + (CAM_UP * hypotenuse);
-
-	#if MODIFIERS_ENABLED
-	samplePos += SampleDisplacementModifiersNear(samplePos);
-	#endif
 	
-	float waveAmp = 0;
+	//Simply snap to water level
+	float waveAmp = length(samplePos - bottom);
+	
 	#if _WAVES
 	WaveInfo waves = GetWaveInfo(samplePos.xz, TIME_VERTEX * _WaveSpeed, 1000, 1001);
 	waves.position.xz = samplePos.xz;
@@ -162,10 +156,12 @@ Varyings VertexWaterLine(Attributes input)
 
 	//If below the lowest possible wave height, fix to top of plane
 	if (top.y + _WaveHeight < _WaterLevel) waveAmp = planeLength;
+	#endif
 
-	#else
-	//Simply snap to water level
-	waveAmp = length(samplePos - bottom);
+	#if DYNAMIC_EFFECTS_ENABLED
+	float4 effectsData = SampleDynamicEffectsData(samplePos.xyz);
+	
+	waveAmp += effectsData[DE_DISPLACEMENT_CHANNEL] * effectsData[DE_ALPHA_CHANNEL];
 	#endif
 	
 #if defined(FULLSCREEN_QUAD)

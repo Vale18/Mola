@@ -1,4 +1,8 @@
-﻿using UnityEditor;
+﻿//Stylized Water 2
+//Staggart Creations (http://staggart.xyz)
+//Copyright protected under Unity Asset Store EULA
+
+using UnityEditor;
 using UnityEngine;
 
 namespace StylizedWater2
@@ -69,14 +73,34 @@ namespace StylizedWater2
 
             EditorGUILayout.LabelField("Grid geometry", EditorStyles.boldLabel);
 
-            EditorGUILayout.PropertyField(scale);
-            EditorGUILayout.PropertyField(vertexDistance);
+            EditorGUILayout.PropertyField(scale, GUILayout.MaxWidth(EditorGUIUtility.labelWidth + 95f));
+
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.PrefixLabel(rowsColumns.displayName);
+                using (new EditorGUI.DisabledScope(rowsColumns.intValue <= 1))
+                {
+                    if (GUILayout.Button("-", EditorStyles.miniButtonLeft, GUILayout.Width(25f)))
+                    {
+                        rowsColumns.intValue--;
+                    }
+                }
+                EditorGUILayout.PropertyField(rowsColumns, GUIContent.none, GUILayout.MaxWidth(40f));
+                if (GUILayout.Button("+", EditorStyles.miniButtonRight, GUILayout.Width(25f)))
+                {
+                    rowsColumns.intValue++;
+                }
+                EditorGUILayout.LabelField($"= {rowsColumns.intValue * rowsColumns.intValue} tiles", EditorStyles.miniLabel);
+            }
+            
+            EditorGUILayout.Space();
+
+            EditorGUILayout.PropertyField(vertexDistance, new GUIContent("Min. vertex distance", vertexDistance.tooltip));
             vertexCount = Mathf.FloorToInt(((scale.floatValue / rowsColumns.intValue) / vertexDistance.floatValue) * ((scale.floatValue / rowsColumns.intValue) / vertexDistance.floatValue));
             if(vertexCount > 65535)
             {
                 EditorGUILayout.HelpBox("Vertex count of individual tiles is too high. Increase the vertex distance, decrease the grid scale, or add more rows/columns", MessageType.Error);
             }
-            EditorGUILayout.PropertyField(rowsColumns);
 
             if (EditorGUI.EndChangeCheck())
             {

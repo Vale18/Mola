@@ -29,6 +29,8 @@ namespace StylizedWater2
         public float offset = 0.05f;
         [Tooltip("When disabled, the skybox reflection comes from a Reflection Probe. This has the benefit of being omni-directional rather than flat/planar. Enabled this to render the skybox into the planar reflection anyway")]
         public bool includeSkybox;
+        [Tooltip("Render Unity's default fog in the reflection. Note that this doesn't strictly work correctly on large triangles, as it is incompatible with oblique camera projections.")]
+        public bool enableFog;
 
         //Quality
         public bool renderShadows;
@@ -44,10 +46,11 @@ namespace StylizedWater2
         
         [SerializeField]
         public List<WaterObject> waterObjects = new List<WaterObject>();
-        [Tooltip("If enabled, the center of the rendering bounds (that wraps around the water objects) moves with the Transform position")]
+        [Tooltip("If enabled, the center of the rendering bounds (that wraps around the water objects) moves with the Transform position" +
+                 "\n\nYou must however ensure you are only moving on the XZ axis")]
         public bool moveWithTransform;
         [HideInInspector]
-        public Bounds bounds;
+        public Bounds bounds = new Bounds();
 
         private float m_renderScale = 1f;
         private float m_renderRange;
@@ -129,7 +132,7 @@ namespace StylizedWater2
 
         public void EnableReflections()
         {
-            if (!AllowReflections || XRGraphics.enabled) return;
+            if (!AllowReflections || PipelineUtilities.VREnabled()) return;
 
             RenderPipelineManager.beginCameraRendering += OnWillRenderCamera;
             ToggleMaterialReflectionSampling(true);
@@ -192,15 +195,26 @@ namespace StylizedWater2
             bounds = CalculateBounds();
         }
 
-        public static bool InvalidCamera(Camera camera)
+        public static bool InvalidContext(Camera camera)
         {
+            #if UNITY_EDITOR
+            //Avoid the "Screen position outside of frustrum" error
+            if (camera.orthographic && Vector3.Dot(Vector3.up, camera.transform.up) > 0.9999f) return true;
+            
+            #if UNITY_2021_2_OR_NEWER
+            //Causes an internal error in URP's rendering code in the CopyColorPass
+            if (camera.cameraType == CameraType.SceneView && UnityEditor.SceneView.lastActiveSceneView && UnityEditor.SceneView.lastActiveSceneView.isUsingSceneFiltering) return true;
+            #endif
+            #endif
+            
+            //Skip for any special use camera's (except scene view camera)
+            //Note: Scene camera still rendering even if window not focused!
             return (camera.cameraType != CameraType.SceneView && (camera.cameraType == CameraType.Reflection || camera.cameraType == CameraType.Preview || camera.hideFlags != HideFlags.None));
         }
 
         private void OnWillRenderCamera(ScriptableRenderContext context, Camera camera)
         {
-            //Skip for any special use camera's (except scene view camera)
-            if (InvalidCamera(camera))
+            if (InvalidContext(camera))
             {
                 isRendering = false;
                 return;
@@ -208,12 +222,10 @@ namespace StylizedWater2
 
             isRendering = WaterObjectsVisible(camera);
             
-            //Note: Scene camera still rendering even if window not focused!
             if (isRendering == false) return;
             
+            
             if (moveWithTransform) bounds.center = this.transform.position;
-
-            UnityEngine.Profiling.Profiler.BeginSample("Planar Reflections", camera);
 
             m_cameraData = camera.GetComponent<UniversalAdditionalCameraData>();
             if (m_cameraData && m_cameraData.renderType == CameraRenderType.Overlay) return;
@@ -223,32 +235,31 @@ namespace StylizedWater2
             
             //It's possible it is destroyed at this point when disabling reflections
             if (!m_reflectionCamera) return;
+            
+            UnityEngine.Profiling.Profiler.BeginSample("Planar Water Reflections", camera);
 
-            if (renderScale != m_renderScale)
+            //Render scale changed
+            if (Math.Abs(renderScale - m_renderScale) > 0.02f)
             {
                 RenderTexture.ReleaseTemporary(m_reflectionCamera.targetTexture);
                 CreateRenderTexture(m_reflectionCamera, camera);
-                
+
                 m_renderScale = renderScale;
             }
-            
+
             UpdateWaterProperties(m_reflectionCamera);
-   
-#if UNITY_EDITOR
-            //Avoid the "Screen position outside of frustrum" error
-            if (camera.orthographic && Vector3.Dot(Vector3.up, camera.transform.up) > 0.9999f) return;
-#endif
             
             UpdateCameraProperties(camera, m_reflectionCamera);
             UpdatePerspective(camera, m_reflectionCamera);
 
-            bool fogEnabled = RenderSettings.fog;
+            bool fogEnabled = RenderSettings.fog && !enableFog;
             //Fog is based on clip-space z-distance and doesn't work with oblique projections
             if (fogEnabled) RenderSettings.fog = false;
             int maxLODLevel = QualitySettings.maximumLODLevel;
             QualitySettings.maximumLODLevel = maximumLODLevel;
             GL.invertCulling = true;
 
+#pragma warning disable 0618
 #if UNITY_2023_1_OR_NEWER
             /*
             requestData = new UniversalRenderPipeline.SingleCameraRequest();
@@ -269,11 +280,12 @@ namespace StylizedWater2
 #else
             UniversalRenderPipeline.RenderSingleCamera(context, m_reflectionCamera);
 #endif
-            
+#pragma warning restore 0618
+
             if (fogEnabled) RenderSettings.fog = true;
             QualitySettings.maximumLODLevel = maxLODLevel;
             GL.invertCulling = false;
-            
+
             UnityEngine.Profiling.Profiler.EndSample();
         }
 

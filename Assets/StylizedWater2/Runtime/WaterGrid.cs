@@ -122,10 +122,8 @@ namespace StylizedWater2
                     {
                         m_waterObject = WaterObject.New(material, mesh);
                         objects.Add(m_waterObject);
-
+                        
                         m_waterObject.transform.parent = this.transform;
-                        m_waterObject.gameObject.layer = 4;
-
                         m_waterObject.name = "WaterTile_x" + x + "z" + z;
                     }
                     else
@@ -136,6 +134,7 @@ namespace StylizedWater2
                     }
 
                     m_waterObject.transform.localPosition = GridLocalCenterPosition(x, z);
+                    m_waterObject.transform.localScale = Vector3.one;
 
                     index++;
                 }
@@ -190,11 +189,13 @@ namespace StylizedWater2
             if (DisplayGrid)
             {
                 Gizmos.color = new Color(1f, 0.25f, 0.25f, 0.5f);
+                Gizmos.matrix = this.transform.localToWorldMatrix;
+                
                 for (int x = 0; x < rowsColumns; x++)
                 {
                     for (int z = 0; z < rowsColumns; z++)
                     {
-                        Vector3 pos = transform.TransformPoint(GridLocalCenterPosition(x, z));
+                        Vector3 pos = GridLocalCenterPosition(x, z);
 
                         Gizmos.DrawWireCube(pos, new Vector3(tileSize, 0f, tileSize));
                     }
