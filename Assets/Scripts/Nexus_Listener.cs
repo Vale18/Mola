@@ -76,6 +76,7 @@ public class Nexus_Listener : MonoBehaviour {
 
 	static double[] currentValue = new double[16];
 	static double oldValue = 0;
+
 	protected void FixedUpdate() {
 		// Count polls (/frames) per second if in editor
 		if (Application.isEditor) {
@@ -137,17 +138,17 @@ public class Nexus_Listener : MonoBehaviour {
 			if (currentValue[i] == 0) {
 				currentValue[i] = (Double)channel[0];
 				currentValue[15] = i;
-				didIt = True;
+				didIt = true;
 				break;
 			}
 		}
 
 		if (didIt == false) {
-			currentValue[currentValue[15]] = (Double)channel[0];
+			currentValue[(int)currentValue[15]] = (Double)channel[0];
 			if (currentValue[15] < 14) {
 				currentValue[15] = currentValue[15] + 1;
 			}
-			else if (currentValue[15] = 14) {
+			else if (currentValue[15] == 14) {
 				currentValue[15] = 0;
 			}
 		}
