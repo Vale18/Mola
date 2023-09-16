@@ -76,6 +76,7 @@ public class Nexus_Listener : MonoBehaviour {
 
 	static double[] currentValue = new double[16];
 	static double oldValue = 0;
+	public int breathe = 0;
 
 	protected void FixedUpdate() {
 		// Count polls (/frames) per second if in editor
@@ -158,7 +159,6 @@ public class Nexus_Listener : MonoBehaviour {
 		}
 
 		double smoothValue = currentSum / currentValue.Length-1;
-		public int breathe = 0;
 
 		if (oldValue != 0) {
     		if (oldValue < smoothValue) {
