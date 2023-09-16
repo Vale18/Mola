@@ -131,18 +131,25 @@ public class Nexus_Listener : MonoBehaviour {
 		}
 
 		double currentSum = 0;
+		bool didIt = false;
 
-		if (currentValue.Length > 0) {
-    		for (int i = 0; i < currentValue.Length - 1; i++) {
-        		if (currentValue[i] == 0) {
-            		currentValue[i] = (Double)channel[0];
-            		currentValue[15] = i;
-            		break;
-        		}
-    		}
-		} else {
-    		currentValue[0] = (Double)channel[0];
-    		currentValue[15] = 0;
+		for (int i = 0; i < currentValue.Length-2; i++) {
+			if (currentValue[i] == 0) {
+				currentValue[i] = (Double)channel[0];
+				currentValue[15] = i;
+				didIt = True;
+				break;
+			}
+		}
+
+		if (didIt == false) {
+			currentValue[currentValue[15]] = (Double)channel[0];
+			if (currentValue[15] < 14) {
+				currentValue[15] = currentValue[15] + 1;
+			}
+			else if (currentValue[15] = 14) {
+				currentValue[15] = 0;
+			}
 		}
 
 		for (int i = 0; i < currentValue.Length - 1; i++) {
