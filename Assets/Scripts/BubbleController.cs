@@ -6,7 +6,7 @@ public class BubbleController : MonoBehaviour
 {
 
     public Nexus_Listener nexus_Listener;
-    public BreathBubble breathBubble;
+    public ParticleSystem breathBubble;
 
     // Start is called before the first frame update
     void Start()
@@ -21,9 +21,9 @@ public class BubbleController : MonoBehaviour
         int activate = nexus_Listener.breathe;
 
         if (activate == 1) {
-            GetComponent<breathBubble>().Play();
+            breathBubble.Play();
         } else {
-            GetComponent<breathBubble>().Stop();
+            breathBubble.Stop();
         }
     }
 }
