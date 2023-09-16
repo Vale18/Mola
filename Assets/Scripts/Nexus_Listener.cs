@@ -74,6 +74,8 @@ public class Nexus_Listener : MonoBehaviour {
 		channel = new object[channelNumbersToRead.Length];
 	}
 
+	static double[] currentValue = new double[16];
+	static double oldValue = 0;
 	protected void FixedUpdate() {
 		// Count polls (/frames) per second if in editor
 		if (Application.isEditor) {
@@ -128,48 +130,51 @@ public class Nexus_Listener : MonoBehaviour {
 			logMessage += $"Channel {channelNumbersToRead[i]}: {channel[i]}, ";
 		}
 
-		double[] currentValue = new double[16];
-		int currentSum = 0;
-		double oldValue = 0;
+		double currentSum = 0;
 
-		if (currentValue.Count > 0) {
-    		for (int i = 0; i < currentValue.Count - 1; i++) {
+		if (currentValue.Length > 0) {
+    		for (int i = 0; i < currentValue.Length - 1; i++) {
         		if (currentValue[i] == 0) {
-            		currentValue[i] = channel[0];
+            		currentValue[i] = (Double)channel[0];
             		currentValue[15] = i;
             		break;
         		}
     		}
 		} else {
-    		currentValue[0] = channel[0];
+    		currentValue[0] = (Double)channel[0];
     		currentValue[15] = 0;
 		}
 
-		for (int i = 0; i < currentValue.Count - 1; i++) {
+		for (int i = 0; i < currentValue.Length - 1; i++) {
     		currentSum += currentValue[i];
 		}
 
-		double smoothValue = currentSum / currentValue.Count;
+		double smoothValue = currentSum / currentValue.Length-1;
+		int breathe = 0;
 
 		if (oldValue != 0) {
     		if (oldValue < smoothValue) {
-        		int breathe = 1;
+        		breathe = 1;
     		} else if (oldValue == smoothValue) {
-        		int breathe = 0;
+        		breathe = 0;
     		} else {
-        		int breathe = -1;
+        		breathe = -1;
     		}
 		} else {
-    		int breathe = 0;
+    		breathe = 0;
 		}
+		oldValue = smoothValue;
 
-		Debug.Log("currentSum: " + currentSum);
+//		Debug.Log("currentSum: " + currentSum);
 		Debug.Log("smoothValue: " + smoothValue);
 		Debug.Log("oldValue: " + oldValue);
 		Debug.Log("breathe: "+ breathe);
+//		foreach (double temp in currentValue) {
+//			Debug.Log(temp);
+//		}
 
 
-Debug.Log(logMessage);
+//Debug.Log(logMessage);
 	}
 
 	protected void OnValidate() {
