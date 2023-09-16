@@ -128,6 +128,56 @@ public class Nexus_Listener : MonoBehaviour {
 			logMessage += $"Channel {channelNumbersToRead[i]}: {channel[i]}, ";
 		}
 
+		if (currentValue in locals) {
+			bool done = false
+			for (int i = 0; i < currentValue.Length-1; i++) {
+				if (currentValue[i] = 0) {
+					currentValue[i] = channel[0];
+					currentValue[15] = i
+					done = true;
+				}
+			}
+			if (done == false) {
+				int tracker = currentValue[15];
+				if (tracker < currentValue.Length-2) {
+					currentValue[0] = channel[0];
+					currentValue[15] = 0;
+				} else {
+					currentValue[tracker+1] = channel[0];
+					currentValue[15] = tracker + 1;
+				}
+			}
+		} else {
+			double[] currentValue = new double[16];
+		}
+		if (currentSum in locals) {
+			for (int i = 0; i < currentValue.Length-1; i++) {
+				currentSum += currentValue[i];
+			}
+		} else {
+			double currentSum = 0;
+		}
+		double smoothValue = currentSum / currentValue.Length;
+		if (oldValue in locals) {
+			if (oldValue < smoothValue) {
+				int breathe = 1;
+				double oldValue = smoothValue;
+			}
+			else if (oldValue == smoothValue) {
+				int breathe = 0;
+				double oldValue = smoothValue;
+			} else {
+				int breathe = -1;
+				double oldValue = smoothValue;
+			}
+		} else {
+			double oldValue = 0;
+		}
+		Debug.Log("currentSum: " + currentSum);
+		Debug.Log("smoothValue: " + smoothValue);
+		Debug.Log("oldValue: " + oldValue);
+		Debug.Log("breathe: "+ breathe)
+
 Debug.Log(logMessage);
 	}
 
