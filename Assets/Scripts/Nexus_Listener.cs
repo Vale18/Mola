@@ -158,7 +158,7 @@ public class Nexus_Listener : MonoBehaviour {
 		}
 
 		double smoothValue = currentSum / currentValue.Length-1;
-		int breathe = 0;
+		public int breathe = 0;
 
 		if (oldValue != 0) {
     		if (oldValue < smoothValue) {
@@ -172,17 +172,6 @@ public class Nexus_Listener : MonoBehaviour {
     		breathe = 0;
 		}
 		oldValue = smoothValue;
-
-//		Debug.Log("currentSum: " + currentSum);
-		Debug.Log("smoothValue: " + smoothValue);
-		Debug.Log("oldValue: " + oldValue);
-		Debug.Log("breathe: "+ breathe);
-//		foreach (double temp in currentValue) {
-//			Debug.Log(temp);
-//		}
-
-
-//Debug.Log(logMessage);
 	}
 
 	protected void OnValidate() {
