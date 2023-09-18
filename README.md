@@ -5,6 +5,7 @@ Anleitung
 1. Anwendung installieren
    * https://mindmedia.freshdesk.com/support/solutions/articles/36000097057-biotrace-software-downloads
    * Vollversion auswählen
+   * Anwendung als Administrator starten
 2. Setup in BioTrace+
    * Live Output aktivieren
       + Konfiguration/Systemeinstellungen/Echtzeitdaten aktivieren
