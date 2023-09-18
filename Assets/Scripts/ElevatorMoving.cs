@@ -17,6 +17,6 @@ public class ElevatorMoving : MonoBehaviour
     }
     void FixedUpdate()
     {
-        transform.position = new Vector3(transform.position.x, transform.position.y - 0.1f, transform.position.z);
+        transform.position = new Vector3(transform.position.x, transform.position.y - 0.01f, transform.position.z);
     }
 }
