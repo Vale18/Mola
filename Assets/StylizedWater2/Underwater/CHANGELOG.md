@@ -1,3 +1,16 @@
+1.1.0
+Minimum required version of Stylized Water 2 is now 1.5.0. 
+
+Added:
+- Underwater mask node for Amplify Shader Editor
+- Exposed global shader boolean called "_UnderwaterRenderingEnabled"
+
+Changed:
+- Shader Graph sub graphs are now combined into a single master node.
+
+Fixed:
+- Pre-emptive shader error fixes in Unity 2023.2+, due to API changes.
+
 1.0.9
 Minimum required version of Stylized Water 2 is now 1.4.0.
 

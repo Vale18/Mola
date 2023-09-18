@@ -19,17 +19,22 @@ namespace StylizedWater2
         public const string ASSET_ID = "170386";
         public const string ASSET_ABRV = "SW2";
 
-        public const string INSTALLED_VERSION = "1.4.0";
-        public const int SHADER_GENERATOR_VERSION = 100;
-        public const string MIN_UNITY_VERSION = "2020.3.1f1";
-        public const string MIN_URP_VERSION = "10.3.2";
+        public const string INSTALLED_VERSION = "1.5.1";
+        
+        public const int SHADER_GENERATOR_VERSION_MAJOR = 1;
+        public const int SHADER_GENERATOR_MINOR = 1; 
+        public const int SHADER_GENERATOR_PATCH = 0;
+        
+        public const string MIN_UNITY_VERSION = "2021.3.16f1";
+        public const string MIN_URP_VERSION = "12.1.6";
 
-        public const string VERSION_FETCH_URL = "http://www.staggart.xyz/backend/versions/stylizedwater2.php";
+        private const string VERSION_FETCH_URL = "http://www.staggart.xyz/backend/versions/stylizedwater2.php";
         public const string DOC_URL = "http://staggart.xyz/unity/stylized-water-2/sws-2-docs/";
         public const string FORUM_URL = "https://forum.unity.com/threads/999132/";
         public const string EMAIL_URL = "mailto:contact@staggart.xyz?subject=Stylized Water 2";
 
         public static bool IS_UPDATED = true;
+        public static bool supportedVersion = true;
         public static bool compatibleVersion = true;
         public static bool alphaVersion = false;
 
@@ -112,6 +117,7 @@ namespace StylizedWater2
             return request.Result[0];
         }
 
+        //Sorry, as much as I hate to intrude on an entire project, this is the only way in Unity to track importing or updating an asset
         public class ImportOrUpdateAsset : AssetPostprocessor
         {
             private static bool OldShadersPresent()
@@ -133,12 +139,14 @@ namespace StylizedWater2
                     assetPath.EndsWith("UnderwaterRenderer.cs"))
                     //Any further extensions...
                 {
-                    Debug.Log("[Stylized Water 2] Extension installed/deleted. Reimporting water shader(s) to toggle extension integration.");
+                    OnImportExtension("Underwater Rendering");
                     
                     oldShaders = OldShadersPresent();
+                }
 
-                    //Re-import any .watershader files, since these depend on the installation state of extensions
-                    WaterShaderImporter.ReimportAll();
+                if (assetPath.EndsWith("WaterDynamicEffectsRenderFeature.cs"))
+                {
+                    OnImportExtension("Dynamic Effects");
                 }
                 
                 if (oldShaders)
@@ -158,6 +166,14 @@ namespace StylizedWater2
                     }
                 }
 
+            }
+
+            private void OnImportExtension(string name)
+            {
+                Debug.Log($"[Stylized Water 2] {name} extension installed/deleted or updated. Reimporting water shader(s) to toggle integration.");
+                
+                //Re-import any .watershader files, since these depend on the installation state of extensions
+                WaterShaderImporter.ReimportAll();
             }
         }
 
@@ -242,7 +258,7 @@ namespace StylizedWater2
             if (upgradedMaterialCount > 0 || deletedFiles.Count > 0)
             {
                 if (EditorUtility.DisplayDialog(AssetInfo.ASSET_NAME, $"Converted {upgradedMaterialCount} materials to use the new water shader." + 
-                                                                      $"\n\nObsolete shader files ({deletedFiles.Count}) deleted:\n" +
+                                                                      $"\n\nObsolete shader files ({deletedFiles.Count}) deleted:\n\n" +
                                                                       String.Join(Environment.NewLine, deletedFiles), 
                     "OK")) { }
             }
@@ -305,11 +321,13 @@ namespace StylizedWater2
 
         public static bool IsAssetStoreLicense()
         {
-            #if SWS_DEV
+            #if SWS_DEV || !UNITY_2023_1_OR_NEWER
             return true;
             #endif
-            
+
             #pragma warning disable CS0162
+            string marker = $"  productId: {ASSET_ID}";
+
             string guid = "d5972a1c9cddd9941aec37a3343647aa"; //This file
             string filePath = AssetDatabase.GUIDToAssetPath(guid);
 
@@ -323,7 +341,7 @@ namespace StylizedWater2
             bool license = false;
             for (int i = 0; i < lines.Length; i++)
             {
-                if (lines[i] == "licenseType: Store") license = true;
+                if (lines[i] == marker) license = true;
             }
 
             return license;
@@ -345,6 +363,10 @@ namespace StylizedWater2
 #if !UNITY_2020_3_OR_NEWER
                 compatibleVersion = false;
 #endif
+                
+                #if !UNITY_2021_3_OR_NEWER
+                supportedVersion = false;
+                #endif
 
                 alphaVersion = GetUnityVersion().Contains("f") == false;
             }
@@ -391,12 +413,12 @@ namespace StylizedWater2
 
                 using (WebClient webClient = new WebClient())
                 {
-                    webClient.DownloadStringCompleted += new System.Net.DownloadStringCompletedEventHandler(OnRetreivedServerVersion);
+                    webClient.DownloadStringCompleted += new System.Net.DownloadStringCompletedEventHandler(OnRetrievedServerVersion);
                     webClient.DownloadStringAsync(new System.Uri(VERSION_FETCH_URL), fetchedVersionString);
                 }
             }
 
-            private static void OnRetreivedServerVersion(object sender, DownloadStringCompletedEventArgs e)
+            private static void OnRetrievedServerVersion(object sender, DownloadStringCompletedEventArgs e)
             {
                 if (e.Error == null && !e.Cancelled)
                 {

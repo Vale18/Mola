@@ -18,6 +18,7 @@ namespace StylizedWater2
         private SerializedProperty rendererIndex;
         private SerializedProperty offset;
         private SerializedProperty includeSkybox;
+        private SerializedProperty enableFog;
         
         //Quality
         private SerializedProperty renderShadows;
@@ -50,6 +51,7 @@ namespace StylizedWater2
             rendererIndex = serializedObject.FindProperty("rendererIndex");
             offset = serializedObject.FindProperty("offset");
             includeSkybox = serializedObject.FindProperty("includeSkybox");
+            enableFog = serializedObject.FindProperty("enableFog");
             renderShadows = serializedObject.FindProperty("renderShadows");
             renderRange = serializedObject.FindProperty("renderRange");
             renderScale = serializedObject.FindProperty("renderScale");
@@ -82,7 +84,7 @@ namespace StylizedWater2
         {
             if (!previewReflection) return;
 
-            if (PlanarReflectionRenderer.InvalidCamera(camera)) return;
+            if (PlanarReflectionRenderer.InvalidContext(camera)) return;
 
             currentCamera = camera;
             
@@ -118,7 +120,7 @@ namespace StylizedWater2
                 EditorGUILayout.LabelField("Status: " + (waterObjectsVisible && currentCamera ? $"Rendering (camera: {currentCamera.name})" : "Not rendering (water not in view for any camera)"), EditorStyles.miniLabel);
             }
             
-            UI.DrawNotification(UnityEngine.Rendering.XRGraphics.enabled, "Not supported with VR rendering", MessageType.Error);
+            UI.DrawNotification(PipelineUtilities.VREnabled(), "Not supported with VR rendering", MessageType.Error);
             
             UI.DrawNotification(PlanarReflectionRenderer.AllowReflections == false, "Reflections have been globally disabled by an external script", MessageType.Warning);
             
@@ -133,11 +135,31 @@ namespace StylizedWater2
             {
                 renderer.SetRendererIndex(rendererIndex.intValue);
             }
-            EditorGUILayout.PropertyField(rotatable);
+            
+            //Default renderer
+            if (rendererIndex.intValue == 0)
+            {
+                UI.DrawNotification("\n" +
+                                        "Using the default renderer for reflections is strongly discouraged." +
+                                        "\n\nMost (if not all) render features, such as third-party post processing effects, will also render for the reflection." +
+                                        "\n\nThis can lead to rendering artefacts and negatively impacts overall performance." +
+                                        "\n", MessageType.Warning);
+                
+                //If there are no other renderers to assign, suggest to auto-create one
+                UI.DrawNotification(PipelineUtilities.rendererIndexList.Length <= 2, "It is highly recommend to create a separate empty renderer", "Create and assign", CreateRenderer, MessageType.None);
+                
+                EditorGUILayout.Space();
+            }
+            
             EditorGUILayout.PropertyField(cullingMask);
             
-            EditorGUILayout.PropertyField(offset);
             EditorGUILayout.PropertyField(includeSkybox);
+            EditorGUILayout.PropertyField(enableFog);
+            
+            EditorGUILayout.Space();
+
+            EditorGUILayout.PropertyField(rotatable);
+            EditorGUILayout.PropertyField(offset);
             
             EditorGUILayout.Space();
             
@@ -212,6 +234,30 @@ namespace StylizedWater2
         }
         
 #if URP
+
+        private void CreateRenderer()
+        {
+            int index = -1;
+            string path = "";
+
+            PipelineUtilities.CreateAndAssignNewRenderer(out index, out path);
+
+            if (index >= 0)
+            {
+                rendererIndex.intValue = index;
+
+                serializedObject.ApplyModifiedProperties();
+                serializedObject.Update();
+                
+                renderer.SetRendererIndex(rendererIndex.intValue);
+
+                if (path != string.Empty)
+                {
+                    Debug.Log("New renderer created at path <i>" + path + "</i>");
+                }
+            }
+        }
+        
         public override bool HasPreviewGUI()
         {
             return previewReflection && previewTexture;

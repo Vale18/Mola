@@ -23,12 +23,16 @@
 
             #pragma multi_compile_local _ _WAVES
             //Multi-compile variants for installed extensions
-			%multi_compile surface modifiers%
-			%multi_compile wave sim%
+			%multi_compile dynamic effects%
 
             #define FULLSCREEN_QUAD
 
+			#include_library "../Libraries/URP.hlsl"
+
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #if DYNAMIC_EFFECTS_ENABLED
+            #include_library "../DynamicEffects/DynamicEffects.hlsl"
+            #endif
             #include_library "UnderwaterMask.hlsl"
 
             half4 frag(Varyings input) : SV_Target

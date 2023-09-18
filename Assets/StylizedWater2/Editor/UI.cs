@@ -43,8 +43,9 @@ namespace StylizedWater2
         private const string InfoIconData = "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";
         public static Texture InfoIcon;
 
-        private static readonly Color RedColor = new Color(1f, 0.31f, 0.34f);
-        private static readonly Color OrangeColor= new Color(1f, 0.68f, 0f);
+        public static readonly Color RedColor = new Color(1f, 0.31f, 0.34f);
+        public static readonly Color OrangeColor= new Color(1f, 0.68f, 0f);
+        public static readonly Color GreenColor = new Color(0.33f, 1f, 0f);
 
         private const float ANIM_SPEED = 12f;
 
@@ -123,7 +124,7 @@ namespace StylizedWater2
         {
             DrawHelpbox(text, messageType, condition, null, null);
         }
-
+        
         private static void DrawHelpbox(string text, MessageType messageType = MessageType.None, bool condition = true, string buttonLabel = "", Action action = null)
         {
             if (!condition) return;
@@ -161,7 +162,8 @@ namespace StylizedWater2
             }
             
             float width = r.width;
-            float height = EditorStyles.helpBox.CalcHeight(new GUIContent(text), EditorGUIUtility.currentViewWidth) + (EditorStyles.label.lineHeight * 1.2f);
+            //float rightPadding = 
+            float height = EditorStyles.helpBox.CalcHeight(new GUIContent(text), EditorGUIUtility.currentViewWidth) + (EditorStyles.label.lineHeight * 2f);
             r.height = height;
 
             Rect btnRect = r;
@@ -209,8 +211,8 @@ namespace StylizedWater2
             textRect.x += colorRect.width + 10f;
 
             //Shrink text area on right side to make room
-            if (icon != null) textRect.width -= iconRect.width *2f;
-            if(action != null) textRect.width -= btnRect.width *1.5f;
+            if (icon != null) textRect.width -= iconRect.width * 2f;
+            if(action != null) textRect.width -= btnRect.width + 30f;
 
             GUI.Label(textRect, new GUIContent(text), Styles.NotificationArea);
 
@@ -230,6 +232,31 @@ namespace StylizedWater2
             GUILayout.Space(height - EditorStyles.label.lineHeight); //17=default line height
         }
 
+        public static void DrawStatusBox(string prefix, string statusText, MessageType messageType = MessageType.None)
+        {
+            using (new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.LabelField(prefix, GUILayout.MaxWidth(EditorGUIUtility.labelWidth));
+
+                Color defaultColor = GUI.contentColor;
+                
+                using (new EditorGUILayout.HorizontalScope(EditorStyles.textField))
+                {
+                    switch (messageType)
+                    {
+                        case MessageType.Error: GUI.contentColor = RedColor;
+                            break;
+                        case MessageType.Warning : GUI.contentColor = OrangeColor;
+                            break;
+                        case MessageType.Info: GUI.contentColor = GreenColor;
+                            break;
+                    }
+
+                    EditorGUILayout.LabelField(statusText);
+                    GUI.contentColor = defaultColor;
+                }
+            }
+        }
         public static void DrawExtension(string name, string description, bool installed, string url, Texture icon)
         {
             EditorGUILayout.BeginHorizontal();
@@ -247,7 +274,7 @@ namespace StylizedWater2
                     
                     using (new EditorGUILayout.HorizontalScope(EditorStyles.textField))
                     {
-                        if (installed) GUI.contentColor = Color.green;
+                        if (installed) GUI.contentColor = UI.GreenColor;
                         EditorGUILayout.LabelField(installed ? "Installed" : "Not Installed", GUILayout.MaxWidth((75f)));
                         GUI.contentColor = defaultColor;
 
@@ -282,7 +309,7 @@ namespace StylizedWater2
                     {
                         using (new EditorGUILayout.HorizontalScope(EditorStyles.textField))
                         {
-                            if (integration.installed) GUI.contentColor = Color.green;
+                            if (integration.installed) GUI.contentColor = GreenColor;
                             if (!integration.installed) GUI.contentColor = UI.OrangeColor;
                             EditorGUILayout.LabelField(integration.installed ? "Installed" : "Not Installed", GUILayout.MaxWidth((75f)));
                             GUI.contentColor = defaultColor;
@@ -380,24 +407,6 @@ namespace StylizedWater2
                     anim.target = Expanded;
                 }
             }
-
-            public static void DrawMaterialHeader(MaterialEditor materialEditor, Rect rect, GUIStyle background)
-            {
-                GUI.DrawTexture(rect, UI.AssetIcon, ScaleMode.ScaleToFit);
-
-                /*
-                if (hasError)
-                {
-                    Rect errorRect = rect;
-                    errorRect.width = 15f;
-                    errorRect.height = 15f;
-                    
-                    GUI.DrawTexture(errorRect, UI.ErrorIcon, ScaleMode.ScaleToFit);
-                }
-                */
-                
-                //TODO: Draw overlay for help button
-            }
             
             private const float HeaderHeight = 25f;
 
@@ -410,6 +419,11 @@ namespace StylizedWater2
 
                 Rect backgroundRect = GUILayoutUtility.GetRect(1f, HeaderHeight);
 
+                #if UNITY_2022_2_OR_NEWER
+                //Negate room made for parameter locking (material variants functionality)
+                backgroundRect.xMin -= 15f;
+                #endif
+                
                 var labelRect = backgroundRect;
                 labelRect.xMin += 8f;
                 labelRect.xMax -= 20f + 16 + 5;
@@ -500,7 +514,7 @@ namespace StylizedWater2
                 #endif
             }
 
-            public static void DrawFloatTicker(MaterialProperty prop, string label = null, string tooltip = null)
+            public static void DrawFloatTicker(MaterialProperty prop, string label = null, string tooltip = null, bool showReverse = false)
             {
                 #if UNITY_2022_1_OR_NEWER
                 MaterialEditor.BeginProperty(prop);
@@ -509,7 +523,7 @@ namespace StylizedWater2
                 EditorGUI.BeginChangeCheck();
                 EditorGUI.showMixedValue = prop.hasMixedValue;
                 
-                float value = m_DrawFloatTicker(prop.floatValue, label ?? prop.displayName, tooltip);
+                float value = m_DrawFloatTicker(prop.floatValue, label ?? prop.displayName, tooltip, showReverse);
                 
                 if (EditorGUI.EndChangeCheck())
                     prop.floatValue = value;
@@ -520,7 +534,7 @@ namespace StylizedWater2
                 #endif
             }
 
-            private static float m_DrawFloatTicker(float value, string label = null, string tooltip = null)
+            private static float m_DrawFloatTicker(float value, string label = null, string tooltip = null, bool showReverse = false)
             {
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.PrefixLabel(new GUIContent(label, null, tooltip));
@@ -542,6 +556,14 @@ namespace StylizedWater2
                 if (GUILayout.Button(new GUIContent("»", "+0.1"), EditorStyles.miniButtonRight, GUILayout.MaxWidth(20)))
                 {
                     value += 0.1f;
+                }
+
+                if (showReverse)
+                {
+                    if (GUILayout.Button("Reverse", EditorStyles.miniButton, GUILayout.MaxWidth(70f)))
+                    {
+                        value = -value;
+                    }
                 }
                 EditorGUILayout.EndHorizontal();
                 
@@ -597,6 +619,8 @@ namespace StylizedWater2
                 {
                     EditorGUILayout.PrefixLabel(new GUIContent(name ?? prop.displayName, tooltip));
                     color = EditorGUILayout.ColorField(new GUIContent("", null, tooltip), prop.colorValue, true, true, hdr, GUILayout.MaxWidth(60f));
+                    
+                    EditorGUILayout.LabelField($"Opacity: {Math.Round(prop.colorValue.a * 100f, 2)}%", EditorStyles.miniLabel);
                 }
 
                 if (ExpandTooltips && tooltip != null) EditorGUILayout.HelpBox(tooltip, MessageType.None);

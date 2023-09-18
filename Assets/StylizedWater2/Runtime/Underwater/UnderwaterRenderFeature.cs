@@ -122,9 +122,9 @@ namespace StylizedWater2
             #if SWS_DEV
             //Debug.Log($"Name:{cameraData.camera.name} Type:{cameraData.cameraType} Enabled:{cameraData.camera.enabled}");
             #endif
-            
+
             //Likely a planar reflections camera or otherwise
-            if (cameraData.cameraType != CameraType.SceneView && cameraData.camera.enabled == false) return true;
+            if (cameraData.camera.cameraType != CameraType.SceneView && cameraData.camera.enabled == false) return true;
             
             //Camera stacking and depth-based post processing is essentially non-functional.
             //All effects render twice to the screen, causing double brightness. Next to fog causing overlay objects to appear transparent
@@ -135,12 +135,12 @@ namespace StylizedWater2
 
 #if UNITY_EDITOR
             //Skip if post-processing is disabled in scene-view
-            if (cameraData.cameraType == CameraType.SceneView && UnityEditor.SceneView.lastActiveSceneView && !UnityEditor.SceneView.lastActiveSceneView.sceneViewState.showImageEffects) return true;
+            if (cameraData.camera.cameraType == CameraType.SceneView && UnityEditor.SceneView.lastActiveSceneView && !UnityEditor.SceneView.lastActiveSceneView.sceneViewState.showImageEffects) return true;
 
 #endif
 
             //Skip hidden or off-screen cameras. 
-            if (cameraData.cameraType == CameraType.Game && cameraData.camera.hideFlags != HideFlags.None) return true;
+            if (cameraData.camera.cameraType == CameraType.Game && cameraData.camera.hideFlags != HideFlags.None) return true;
             
             #if UNITY_EDITOR
             //Skip rendering if editing a prefab
@@ -155,6 +155,7 @@ namespace StylizedWater2
         }
         
         private int _FullySubmerged = Shader.PropertyToID("_FullySubmerged");
+        private int _UnderwaterRenderingEnabled = Shader.PropertyToID("_UnderwaterRenderingEnabled");
         
         public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
         {
@@ -170,6 +171,8 @@ namespace StylizedWater2
 
             if (cameraIntersecting)
             {
+                Shader.SetGlobalInt(_UnderwaterRenderingEnabled, 1);
+                
                 keywordStates = UnderwaterRenderer.Instance.materialKeywordStates;
                 cameraSubmerged = UnderwaterRenderer.Instance.CameraSubmerged(renderingData.cameraData.camera);
 
@@ -200,6 +203,10 @@ namespace StylizedWater2
                 {
                     renderer.EnqueuePass(waterLinePass);
                 }
+            }
+            else
+            {
+                Shader.SetGlobalInt(_UnderwaterRenderingEnabled, 0);
             }
         }
 

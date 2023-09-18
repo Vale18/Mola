@@ -17,10 +17,15 @@ ScriptedImporter:
     fogIntegration: 2
     quadNormalMapSamples: 0
     customIncludeDirectives:
-    - type: 0
+    - enabled: 1
+      type: 0
       value: float _MyParameter;
-    - type: 3
-      value: SOMETHING_ENABLED
+    - enabled: 0
+      type: 3
+      value: QUAD_NORMAL_SAMPLES
+    - enabled: 0
+      type: 3
+      value: PIXELIZE_UV
   dependencies:
   - Assets/StylizedWater2/Shaders/Libraries/URP.hlsl
   - Assets/StylizedWater2/Shaders/Libraries/Input.hlsl
@@ -31,10 +36,10 @@ ScriptedImporter:
   - Assets/StylizedWater2/Shaders/Libraries/Lighting.hlsl
   - Assets/StylizedWater2/Shaders/Underwater/UnderwaterFog.hlsl
   - Assets/StylizedWater2/Shaders/Underwater/UnderwaterShading.hlsl
-  - Assets/StylizedWater2/Shaders/Simulation/Simulation.hlsl
   - Assets/StylizedWater2/Shaders/Libraries/Features.hlsl
+  - Assets/StylizedWater2/Shaders/Libraries/Foam.hlsl
   - Assets/StylizedWater2/Shaders/Libraries/Caustics.hlsl
-  - Assets/StylizedWater2/Shaders/SurfaceModifiers/SurfaceModifiers.hlsl
+  - Assets/StylizedWater2/Shaders/DynamicEffects/DynamicEffects.hlsl
   - Assets/StylizedWater2/Shaders/Libraries/Vertex.hlsl
   - Assets/StylizedWater2/Shaders/Libraries/Tesselation.hlsl
   - Assets/StylizedWater2/Shaders/Libraries/ForwardPass.hlsl

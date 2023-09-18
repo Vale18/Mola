@@ -65,6 +65,7 @@ namespace StylizedWater2
         private SerializedProperty vertexDistance;
         
         private SerializedProperty noise;
+        private SerializedProperty boundsPadding;
         
         private WaterMeshImporter importer;
         
@@ -88,6 +89,7 @@ namespace StylizedWater2
             UVTiling = waterMesh.FindPropertyRelative("UVTiling");
             vertexDistance = waterMesh.FindPropertyRelative("vertexDistance");
             noise = waterMesh.FindPropertyRelative("noise");
+            boundsPadding = waterMesh.FindPropertyRelative("boundsPadding");
 
             SceneView.duringSceneGui += OnSceneGUI;
         }
@@ -143,6 +145,7 @@ namespace StylizedWater2
 
             EditorGUILayout.PropertyField(UVTiling);
             EditorGUILayout.PropertyField(noise);
+            EditorGUILayout.PropertyField(boundsPadding);
             
             EditorGUILayout.Space();
 
@@ -154,7 +157,7 @@ namespace StylizedWater2
                 
                 if (autoApplyChanges && HasModified())
                 {
-                    #if UNITY_2023_1_OR_NEWER
+                    #if UNITY_2022_2_OR_NEWER
                     this.SaveChanges();
                     #else
                     this.ApplyAndImport();
@@ -177,13 +180,23 @@ namespace StylizedWater2
         private Material mat;
         private void OnSceneGUI(SceneView obj)
         {
-            if (!previewInSceneView) return;
-            
-            if(!mat) mat = new Material(Shader.Find("VR/SpatialMapping/Wireframe"));
+            if (!previewInSceneView)
+            {
+                GL.wireframe = false;
+                return;
+            }
+
+            if (!mat)
+            {
+                mat = new Material(Shader.Find("Unlit/Color"));
+                mat.color = new Color(0,0,0, 0.25f);
+                mat.mainTexture = Texture2D.whiteTexture;
+            }
             mat.SetPass(0);
             
             if (importer.waterMesh.mesh)
             {
+                GL.wireframe = true;
                 if (WaterObject.Instances.Count > 0)
                 {
                     foreach (WaterObject waterObject in WaterObject.Instances)
@@ -193,7 +206,7 @@ namespace StylizedWater2
                 }
                 else
                 {
-                    if (SceneView.lastActiveSceneView && importer.waterMesh.mesh)
+                    if (SceneView.lastActiveSceneView)
                     {
                         //Position in view
                         Vector3 position = SceneView.lastActiveSceneView.camera.transform.position + (SceneView.lastActiveSceneView.camera.transform.forward * importer.waterMesh.scale * 0.5f);
@@ -201,6 +214,7 @@ namespace StylizedWater2
                         Graphics.DrawMeshNow(importer.waterMesh.mesh, position, Quaternion.identity);
                     }
                 }
+                GL.wireframe = false;
             }
         }
     }

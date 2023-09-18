@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Object = UnityEngine.Object;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace StylizedWater2
 {
@@ -23,7 +19,6 @@ namespace StylizedWater2
         /// </summary>
         public static readonly List<WaterObject> Instances = new List<WaterObject>();
         
-        [Header("References")]
         public Material material;
         public MeshFilter meshFilter;
         public MeshRenderer meshRenderer;
@@ -126,7 +121,7 @@ namespace StylizedWater2
             go.layer = LayerMask.NameToLayer("Water");
             
             #if UNITY_EDITOR
-            Undo.RegisterCreatedObjectUndo(go, "Created Water Object");
+            UnityEditor.Undo.RegisterCreatedObjectUndo(go, "Created Water Object");
             #endif
             
             WaterObject waterObject = go.GetComponent<WaterObject>();
@@ -170,27 +165,4 @@ namespace StylizedWater2
             return null;
         }
     }
-    
-    #if UNITY_EDITOR
-    [CustomEditor(typeof(WaterObject))]
-    [CanEditMultipleObjects]
-    public class WaterObjectInspector : Editor
-    {
-        public override void OnInspectorGUI()
-        {
-            EditorGUILayout.HelpBox("This component provides a means for other scripts to identify and find water bodies", MessageType.None);
-            
-            EditorGUI.BeginDisabledGroup(true);
-            base.OnInspectorGUI();
-            EditorGUI.EndDisabledGroup();
-
-            //In case the material was changed on the attached Mesh Renderer, reflect the change
-            foreach (Object currentTarget in targets)
-            {
-                WaterObject water = (WaterObject)currentTarget;
-                water.FetchWaterMaterial();
-            }
-        }
-    }
-    #endif
 }

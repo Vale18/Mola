@@ -32,10 +32,12 @@ namespace StylizedWater2
         [Tooltip("Shifts the vertices in a random direction. Definitely use this when using flat shading")]
         [Range(0f, 1f)]
         public float noise;
-
-        //Ensure the bounds has some height, otherwise it will prematurely be culled when using high waves
-        private const float BOUNDS_HEIGHT_PADDING = 4f;
-
+        [Min(0)]
+        [Tooltip("The surface is normally flat, yet vertex displacement on the GPU such as waves can give the surface artificial height." +
+                 "\n\nThis can cause a Mesh Renderer to be prematurely culled, despite still actually being visible." +
+                 "\n\nThis value adds an artificial amount of height to the generate mesh's bounds, to avoid this from happening.")]
+        public float boundsPadding = 4f;
+        
         /// <summary>
         /// Generated output mesh. Empty by default, use the Rebuild() function to generate one from the current settings.
         /// </summary>
@@ -155,7 +157,8 @@ namespace StylizedWater2
             m.SetUVs(0, uvs);
             m.SetUVs(1, uvs2);
             m.colors = new Color[vertices.Count];
-            m.bounds = new Bounds(Vector3.zero, new Vector3(scale, BOUNDS_HEIGHT_PADDING, scale));
+
+            m.bounds = new Bounds(Vector3.zero, new Vector3(scale, boundsPadding, scale));
             
             return m;
         }
@@ -230,7 +233,7 @@ namespace StylizedWater2
             m.tangents = tangents;
             m.normals = normals;
             m.colors = new Color[vertices.Length];
-            m.bounds = new Bounds(Vector3.zero, new Vector3(scale, BOUNDS_HEIGHT_PADDING, scale));
+            m.bounds = new Bounds(Vector3.zero, new Vector3(scale, boundsPadding, scale));
 
             return m;
         }

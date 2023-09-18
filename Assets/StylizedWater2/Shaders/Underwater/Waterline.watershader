@@ -30,9 +30,13 @@
 			#pragma multi_compile_local_fragment _ _TRANSLUCENCY
 			#pragma multi_compile_local _ _WAVES
 
+			#include_library "../Libraries/URP.hlsl"
+
 			//Multi-compile variants for installed extensions
-			%multi_compile surface modifiers%
-			%multi_compile wave sim%
+			%multi_compile dynamic effects%
+            #if DYNAMIC_EFFECTS_ENABLED
+            #include_library "../DynamicEffects/DynamicEffects.hlsl"
+            #endif
 
 			#include_library "UnderwaterMask.hlsl"
 			#include_library "UnderwaterEffects.hlsl"
