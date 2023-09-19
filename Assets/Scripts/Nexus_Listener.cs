@@ -65,6 +65,8 @@ public class Nexus_Listener : MonoBehaviour {
 		SetUpdateRate(pollsPerSecond);
 	}
 
+	public ParticleSystem breathBubbble;
+
 	protected void Start() {
 
 		int channelNumberMax = 0;
@@ -72,11 +74,12 @@ public class Nexus_Listener : MonoBehaviour {
 			channelNumberMax = Math.Max(channelNumber, channelNumberMax);
 		}
 		channel = new object[channelNumbersToRead.Length];
+		breathBubbble = GetComponent<ParticleSystem>();
 	}
 
 	static double[] currentValue = new double[16];
 	static double oldValue = 0;
-	public int breathe = 0;
+	public int breathe = 1;
 
 	protected void FixedUpdate() {
 		// Count polls (/frames) per second if in editor
@@ -160,6 +163,10 @@ public class Nexus_Listener : MonoBehaviour {
 
 		double smoothValue = currentSum / currentValue.Length-1;
 
+		//for (int i = 0; i < currentValue.Length-1; i++) {
+		//	Debug.Log("currentValue" + i + currentValue[i]);
+		//}
+		Debug.Log("channelValue: " + channel[0]);
 		if (oldValue != 0) {
     		if (oldValue < smoothValue) {
         		breathe = 1;
@@ -172,6 +179,14 @@ public class Nexus_Listener : MonoBehaviour {
     		breathe = 0;
 		}
 		oldValue = smoothValue;
+
+		if (breathe == 1) {
+			breathBubbble.Play();
+		} else if (breathe == 0) {
+			breathBubbble.Stop();
+		} else if (breathe == -1) {
+			breathBubbble.Stop();
+		}
 	}
 
 	protected void OnValidate() {
