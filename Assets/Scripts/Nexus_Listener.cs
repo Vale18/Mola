@@ -181,11 +181,11 @@ public class Nexus_Listener : MonoBehaviour {
 		oldValue = smoothValue;
 
 		if (breathe == 1) {
-			breathBubbble.Play();
+			breathBubbble.Stop();
 		} else if (breathe == 0) {
-			breathBubbble.Stop();
+			breathBubbble.Play();
 		} else if (breathe == -1) {
-			breathBubbble.Stop();
+			breathBubbble.Play();
 		}
 	}
 
