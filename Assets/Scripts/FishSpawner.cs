@@ -1,34 +1,98 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class FishSpawner : MonoBehaviour
 {
-    public GameObject[] fishPrefabs; // Assign your 3 fish models here
-    public Transform player; // Assign the player's transform here
-    public float spawnRadius = 50f; // Distance around the player where fishes will spawn
-    public float density = 0.01f; // The density of fishes, adjust this to spawn more or fewer fishes
-    public float spawnInterval = 1f; // How often to spawn fishes
+    public Transform player;
+    public float spawnRadius = 100f;
+    public float minSpawnRadius = 20f;
+    private float timeSinceLastSpawn = 0f;
+    private int currentZoneDensity;
+    private float spawnInterval;
+    
+    [Header("Zone 1: 0m - 200m")]
+    public List<GameObject> zone1FishPrefabs;
+    public int zone1Density = 1;
 
-    private void Start()
+    [Header("Zone 2: 200m - 1000m")]
+    public List<GameObject> zone2FishPrefabs;
+    public int zone2Density = 1;
+
+    [Header("Zone 3: 1000m - 4000m")]
+    public List<GameObject> zone3FishPrefabs;
+    public int zone3Density = 1;
+
+    [Header("Zone 4: 4000m - 6000m")]
+    public List<GameObject> zone4FishPrefabs;
+    public int zone4Density = 1;
+
+    [Header("Zone 5: 6000m and below")]
+    public List<GameObject> zone5FishPrefabs;
+    public int zone5Density = 1;
+
+    void Start()
     {
-        // Initial spawn to fill the area from 0 Y to -50 Y
-        for (float depth = -5; depth >= -50f; depth -= 10f) // You can adjust the step value as needed
-        {
-            int fishCount = Mathf.FloorToInt(density * spawnRadius * spawnRadius);
-            for (int i = 0; i < fishCount; i++)
-            {
-                SpawnRandomFishAtDepth(depth);
-            }
-        }
+        currentZoneDensity = zone1Density;
 
-        StartCoroutine(SpawnFishes());
+        float spawnInterval = 1f / currentZoneDensity;
+        int fishCount = Mathf.FloorToInt(currentZoneDensity * spawnRadius);
+
+        for (int i = 0; i < fishCount; i++)
+        {
+            SpawnRandomFishAtDepth(Random.Range(-100f, -10f));
+            timeSinceLastSpawn = 0f;
+        }
+        InvokeRepeating(nameof(SpawnRandomFish), spawnInterval, spawnInterval);
+    }
+
+
+    private void UpdateCurrentZoneDensity()
+    {
+        float currentDepth = -player.position.y + 100;
+
+        if (currentDepth < 200)
+        {
+            currentZoneDensity = zone1Density;
+        }
+        else if (currentDepth < 1000)
+        {
+            currentZoneDensity = zone2Density;
+        }
+        else if (currentDepth < 4000)
+        {
+            currentZoneDensity = zone3Density;
+        }
+        else if (currentDepth < 6000)
+        {
+            currentZoneDensity = zone4Density;
+        }
+        else
+        {
+            currentZoneDensity = zone5Density;
+        }
+    }
+
+
+    void Update()
+    {
+        UpdateCurrentZoneDensity();  // Continuously update the current zone density
+
+        timeSinceLastSpawn += Time.deltaTime;
+        float spawnInterval = 1f / currentZoneDensity;
+
+        if (timeSinceLastSpawn > spawnInterval)
+        {
+            SpawnRandomFish();
+            timeSinceLastSpawn = 0f;
+        }
     }
 
     private IEnumerator SpawnFishes()
     {
         while (true)
         {
-            int fishCount = Mathf.FloorToInt(density * spawnRadius * spawnRadius);
+            int fishCount = Mathf.FloorToInt(currentZoneDensity * spawnRadius * spawnRadius);
             for (int i = 0; i < fishCount; i++)
             {
                 SpawnRandomFish();
@@ -47,7 +111,7 @@ public class FishSpawner : MonoBehaviour
             fish.AddComponent<FishMover>();
         }
 
-        Destroy(fish, 14f);
+        Destroy(fish, 28f);
         return fish;
     }
 
@@ -62,50 +126,119 @@ public class FishSpawner : MonoBehaviour
 
     private void SpawnRandomFish()
     {
-        Vector3 randomDirection = Random.insideUnitSphere.normalized;
-        Vector3 spawnPosition = player.position + randomDirection * spawnRadius;
-        spawnPosition.y = player.position.y - 50f;
+        List<GameObject> currentZoneFishPrefabs;
+        int currentZoneDensity;
 
+        float currentDepth = -player.position.y + 100;
 
-        int randomFishIndex = Random.Range(0, fishPrefabs.Length);
-       // SpawnFish(fishPrefabs[randomFishIndex], spawnPosition, randomRotation);
+        if (currentDepth < 200)
+        {
+            currentZoneFishPrefabs = zone1FishPrefabs;
+            currentZoneDensity = zone1Density;
+        }
+        else if (currentDepth < 1000)
+        {
+            currentZoneFishPrefabs = zone2FishPrefabs;
+            currentZoneDensity = zone2Density;
+        }
+        else if (currentDepth < 4000)
+        {
+            currentZoneFishPrefabs = zone3FishPrefabs;
+            currentZoneDensity = zone3Density;
+        }
+        else if (currentDepth < 6000)
+        {
+            currentZoneFishPrefabs = zone4FishPrefabs;
+            currentZoneDensity = zone4Density;
+        }
+        else
+        {
+            currentZoneFishPrefabs = zone5FishPrefabs;
+            currentZoneDensity = zone5Density;
+        }
 
-        Quaternion randomRotation = RandomRotationAvoidingCenter(spawnPosition);
-        SpawnFish(fishPrefabs[randomFishIndex], spawnPosition, randomRotation);
+        for (int i = 0; i < currentZoneDensity; i++)
+        {
+            Vector3 randomDirection = Random.insideUnitSphere.normalized;
+            Vector3 spawnPosition;
+            float distanceFromCenter;
+            int maxAttempts = 10;  // Maximum number of attempts to find a spawn position
+            int currentAttempt = 0;
+
+            do
+            {
+                spawnPosition = player.position + randomDirection * spawnRadius;
+                distanceFromCenter = Vector3.Distance(new Vector3(0, spawnPosition.y, 0), spawnPosition);
+                currentAttempt++;
+                if (currentAttempt >= maxAttempts)
+                {
+                    return;  // Exit the loop if maximum attempts reached
+                }
+            }
+            while (distanceFromCenter < minSpawnRadius);
+
+            spawnPosition.y = player.position.y - 100f;
+
+            int randomFishIndex = Random.Range(0, currentZoneFishPrefabs.Count);
+            Quaternion randomRotation = RandomRotationAvoidingCenter(spawnPosition);
+            SpawnFish(currentZoneFishPrefabs[randomFishIndex], spawnPosition, randomRotation);
+        }
     }
+
+
 
     // Function to spawn fish at a specific depth
     private void SpawnRandomFishAtDepth(float depth)
     {
-        Vector3 randomDirection = Random.insideUnitSphere.normalized;
-        Vector3 spawnPosition = player.position + randomDirection * spawnRadius;
+        Vector3 randomDirection = Random.onUnitSphere;
+        float randomDistance = Random.Range(minSpawnRadius, spawnRadius);
+        Vector3 spawnPosition = player.position + randomDirection * randomDistance;
+        float distanceFromCenter;
+        int maxAttempts = 10;  // Maximum number of attempts to find a spawn position
+        int currentAttempt = 0;
+
+        do
+        {
+            
+            distanceFromCenter = Vector3.Distance(new Vector3(0, spawnPosition.y, 0), spawnPosition);
+            currentAttempt++;
+            if (currentAttempt >= maxAttempts)
+            {
+                return;  // Exit the method if maximum attempts reached
+            }
+        }
+        while (distanceFromCenter < minSpawnRadius);
+
         spawnPosition.y = depth;
 
-        // Quaternion randomRotation = RandomRotationAvoidingPlayer(spawnPosition);
+        int randomFishIndex = Random.Range(0, zone1FishPrefabs.Count);
 
-        int randomFishIndex = Random.Range(0, fishPrefabs.Length);
-        //SpawnFish(fishPrefabs[randomFishIndex], spawnPosition, randomRotation);
-        
-
-        Quaternion rotation;
-        if (depth >= -100f)
-        {
-            rotation = InitialSpawnRotation(spawnPosition);
-        }
-        else
-        {
-            rotation = RandomRotationAvoidingCenter(spawnPosition);
-        }
-    
-        SpawnFish(fishPrefabs[randomFishIndex], spawnPosition, rotation);
+        Quaternion randomRotation = RandomRotationAvoidingCenter(spawnPosition);
+        SpawnFish(zone1FishPrefabs[randomFishIndex], spawnPosition, randomRotation);
     }
+
 
 
     private Quaternion RandomRotationAvoidingCenter(Vector3 spawnPosition)
     {
-        Vector3 directionToCenter = (new Vector3(0, spawnPosition.y, 0) - spawnPosition).normalized;
-        Vector3 randomRotationAxis = Vector3.Cross(directionToCenter, Random.insideUnitSphere).normalized;
+        const float avoidAngleMargin = 5f; // Margin of degrees to avoid the center
 
-        return Quaternion.AngleAxis(Random.Range(0, 360f), randomRotationAxis);
+        Vector3 directionToCenter = (new Vector3(0, spawnPosition.y, 0) - spawnPosition).normalized;
+        Vector3 randomDirection;
+        float angleToCenter;
+
+        do
+        {
+            // Generate a random horizontal direction
+            randomDirection = Vector3.ProjectOnPlane(Random.insideUnitSphere, Vector3.up).normalized;
+            angleToCenter = Vector3.Angle(randomDirection, directionToCenter);
+        }
+        while (angleToCenter < avoidAngleMargin || angleToCenter > 180f - avoidAngleMargin);  // Check if the angle is too close to the center
+
+        Quaternion baseRotation = Quaternion.LookRotation(randomDirection, Vector3.up);
+
+        // Apply a random tilt up to 30 degrees
+        Quaternion tilt = Quaternion.AngleAxis(Random.Range(-30f, 30f), Vector3.forward);
+        return baseRotation * tilt;
     }
 }

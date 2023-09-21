@@ -44,7 +44,7 @@ public class DepthAudioTrigger : MonoBehaviour
         }
 
 
-        if (!hasPlayedAudio1 && playerTransform.position.y <= triggerDepth1)
+        if (!hasPlayedAudio3 && playerTransform.position.y <= triggerDepth1)
         {
             audioSource.clip = Resources.Load<AudioClip>("Audio/Audio_3");
             audioSource.Play();
@@ -52,7 +52,7 @@ public class DepthAudioTrigger : MonoBehaviour
         }
 
 
-        if (!hasPlayedAudio1 && playerTransform.position.y <= triggerDepth1)
+        if (!hasPlayedAudio4 && playerTransform.position.y <= triggerDepth1)
         {
             audioSource.clip = Resources.Load<AudioClip>("Audio/Audio_4");
             audioSource.Play();
@@ -60,7 +60,7 @@ public class DepthAudioTrigger : MonoBehaviour
         }
 
 
-        if (!hasPlayedAudio1 && playerTransform.position.y <= triggerDepth1)
+        if (!hasPlayedAudio5 && playerTransform.position.y <= triggerDepth1)
         {
             audioSource.clip = Resources.Load<AudioClip>("Audio/Audio_5");
             audioSource.Play();
@@ -68,7 +68,7 @@ public class DepthAudioTrigger : MonoBehaviour
         }
 
 
-        if (!hasPlayedAudio1 && playerTransform.position.y <= triggerDepth1)
+        if (!hasPlayedAudio6 && playerTransform.position.y <= triggerDepth1)
         {
             audioSource.clip = Resources.Load<AudioClip>("Audio/Audio_6");
             audioSource.Play();

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ElevatorMoving : MonoBehaviour
 {
+    public float speed = 0.1f;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,6 +18,6 @@ public class ElevatorMoving : MonoBehaviour
     }
     void FixedUpdate()
     {
-        transform.position = new Vector3(transform.position.x, transform.position.y - 0.01f, transform.position.z);
+        transform.position = new Vector3(transform.position.x, transform.position.y - speed, transform.position.z);
     }
 }
