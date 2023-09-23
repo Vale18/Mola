@@ -65,6 +65,8 @@ public class Nexus_Listener : MonoBehaviour {
 		SetUpdateRate(pollsPerSecond);
 	}
 
+	public ParticleSystem breathBubbble;
+
 	protected void Start() {
 
 		int channelNumberMax = 0;
@@ -72,7 +74,12 @@ public class Nexus_Listener : MonoBehaviour {
 			channelNumberMax = Math.Max(channelNumber, channelNumberMax);
 		}
 		channel = new object[channelNumbersToRead.Length];
+		breathBubbble = GetComponent<ParticleSystem>();
 	}
+
+	static double[] currentValue = new double[16];
+	static double oldValue = 0;
+	public int breathe = 1;
 
 	protected void FixedUpdate() {
 		// Count polls (/frames) per second if in editor
@@ -128,7 +135,58 @@ public class Nexus_Listener : MonoBehaviour {
 			logMessage += $"Channel {channelNumbersToRead[i]}: {channel[i]}, ";
 		}
 
-Debug.Log(logMessage);
+		double currentSum = 0;
+		bool didIt = false;
+
+		for (int i = 0; i < currentValue.Length-2; i++) {
+			if (currentValue[i] == 0) {
+				currentValue[i] = (Double)channel[0];
+				currentValue[15] = i;
+				didIt = true;
+				break;
+			}
+		}
+
+		if (didIt == false) {
+			currentValue[(int)currentValue[15]] = (Double)channel[0];
+			if (currentValue[15] < 14) {
+				currentValue[15] = currentValue[15] + 1;
+			}
+			else if (currentValue[15] == 14) {
+				currentValue[15] = 0;
+			}
+		}
+
+		for (int i = 0; i < currentValue.Length - 1; i++) {
+    		currentSum += currentValue[i];
+		}
+
+		double smoothValue = currentSum / currentValue.Length-1;
+
+		//for (int i = 0; i < currentValue.Length-1; i++) {
+		//	Debug.Log("currentValue" + i + currentValue[i]);
+		//}
+		Debug.Log("channelValue: " + channel[0]);
+		if (oldValue != 0) {
+    		if (oldValue < smoothValue) {
+        		breathe = 1;
+    		} else if (oldValue == smoothValue) {
+        		breathe = 0;
+    		} else {
+        		breathe = -1;
+    		}
+		} else {
+    		breathe = 0;
+		}
+		oldValue = smoothValue;
+
+		if (breathe == 1) {
+			breathBubbble.Stop();
+		} else if (breathe == 0) {
+			breathBubbble.Stop();
+		} else if (breathe == -1) {
+			breathBubbble.Play();
+		}
 	}
 
 	protected void OnValidate() {
