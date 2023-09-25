@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Fish Bass 3 MAT Bumped Rim
+  m_Shader: {fileID: 4800000, guid: a637f27b9eb99ec45851879705a9df7c, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: c61999c3d5d2e6341898772c4bb381e2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: fd0355fd0298c5444a3c582dfc793ae7, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _RimPower: 3
+    - _Shininess: 0.43461767
+    m_Colors:
+    - _Color: {r: 0.9705882, g: 0.9705882, b: 0.9705882, a: 1}
+    - _Color2: {r: 1, g: 1, b: 1, a: 1}
+    - _RimColor: {r: 0.44117647, g: 0.35942906, b: 0.32439446, a: 0}
+    - _SpecColor: {r: 0.880597, g: 0.8107448, b: 0.75573623, a: 1}
