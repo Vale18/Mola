@@ -3527,7 +3527,7 @@ MonoBehaviour:
   waterLevelPadding: 0
   waterMaterial: {fileID: 2100000, guid: d53e2a245a2e389439504202541600e4, type: 2}
   dynamicMaterial: 0
-  settings: {fileID: 0}
+  settings: {fileID: 1099109884}
   useVolumeBlending: 0
   startDistance: 50
   fogDensity: 1
@@ -6272,6 +6272,127 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9884600cc74c9c34499db09c3fa91e10, type: 3}
+--- !u!1001 &796841535
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 2850394228103426802}
+    m_Modifications:
+    - target: {fileID: 1396268501571230, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_Name
+      value: Particle jiggly bubble underwater exhaling continuously
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3.2199998
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4634727429090740, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198252985305691304, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: looping
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198252985305691304, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: cullingMode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 198252985305691304, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: lengthInSec
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 198252985305691304, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: CollisionModule.enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 199016016996000876, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 199379767734139166, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 199940589574799318, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+--- !u!1 &796841536 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1396268501571230, guid: 5d46d7c3e7c669a4d9774e8b294a978c, type: 3}
+  m_PrefabInstance: {fileID: 796841535}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &796841537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 796841536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8545279cf76a7044a88fcae5e569d011, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  filepath: C:\Program Files\BioTrace+ NX10\System\DataChan.bin
+  pollsPerSecond: 64
+  debugCurrentPPS: 0
+  channelNumbersToRead: 08000000
+  convertDoubleToFloat: 0
+  breathBubbble: {fileID: 0}
+  breathe: 1
 --- !u!4 &800163999 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 484554, guid: a09806691ced5af4587444572a1468b6, type: 3}
@@ -8046,6 +8167,52 @@ MonoBehaviour:
   - {fileID: 1055711946}
   - {fileID: 657695124}
   - {fileID: 843153177}
+--- !u!114 &1099109884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: defe3efb56c1bc943a6bfb504a00dc77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  active: 1
+  startDistance:
+    m_OverrideState: 0
+    m_Value: 0
+  fogDensity:
+    m_OverrideState: 0
+    m_Value: 20
+  heightFogDepth:
+    m_OverrideState: 0
+    m_Value: 25
+  heightFogDensity:
+    m_OverrideState: 0
+    m_Value: 1
+  heightFogBrightness:
+    m_OverrideState: 0
+    m_Value: 0.6
+  fogBrightness:
+    m_OverrideState: 0
+    m_Value: 1
+  subsurfaceStrength:
+    m_OverrideState: 0
+    m_Value: 1
+  causticsStrength:
+    m_OverrideState: 0
+    m_Value: 1
+  distortionStrength:
+    m_OverrideState: 0
+    m_Value: 0.25
+  distortionFrequency:
+    m_OverrideState: 0
+    m_Value: 0.75
+  distortionSpeed:
+    m_OverrideState: 0
+    m_Value: 0.5
 --- !u!114 &1100360982
 MonoBehaviour:
   m_ObjectHideFlags: 0
