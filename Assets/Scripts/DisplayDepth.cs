@@ -14,9 +14,9 @@ public class DisplayDepth : MonoBehaviour
 
     private void Update()
     {
+        
         // Get the player's Y-coordinate and round it
         int roundedY = Mathf.RoundToInt(Mathf.Abs(playerTransform.position.y));
-
         // Update the text display
         textMesh.text = $"{roundedY} \nMeter tief";
     }
