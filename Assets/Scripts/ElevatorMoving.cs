@@ -6,6 +6,11 @@ public class ElevatorMoving : MonoBehaviour
 {
     public float minSpeed = 1f;
     public float maxSpeed = 50f;
+    
+    
+
+    [Header("Initial Wait Time")]
+    public float initialWaitTime = 5f;  // Time in seconds before the elevator starts moving
 
     [Header("Speed Transition Times")]
     public float speedUpTime = 3f;    // Time in seconds to reach maxSpeed
@@ -36,14 +41,19 @@ public class ElevatorMoving : MonoBehaviour
 
     private float currentSpeed;
     private float speedLerpTime;
-    private bool canMove = true;
+    private bool canMove = false;
     
 
     private void Start()
     {
-
+        StartCoroutine(InitialDelay());
     }
 
+    private IEnumerator InitialDelay()
+    {
+        yield return new WaitForSeconds(initialWaitTime);
+        canMove = true;
+    }
 
     private void Update()
     {
@@ -77,9 +87,5 @@ public class ElevatorMoving : MonoBehaviour
 
         // Adjust the elevator's position based on the calculated speed
         transform.position = new Vector3(transform.position.x, transform.position.y - currentSpeed * Time.deltaTime, transform.position.z);
-    }
-    public void setCanMove(bool canMove)
-    {
-        this.canMove = canMove;
     }
 }
