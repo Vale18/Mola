@@ -1,5 +1,10 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Models/Structure/beta_tower/scene.bin.meta
 guid: f291eb3221e4e214ab04b6aac7865abc
+========
+guid: c2710a7aeadb5974eb3866a635c10e70
+folderAsset: yes
+>>>>>>>> main:Assets/Materials/white-pointer.meta
 DefaultImporter:
   externalObjects: {}
   userData: 

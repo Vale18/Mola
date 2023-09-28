@@ -111,7 +111,7 @@ public class FishSpawner : MonoBehaviour
             fish.AddComponent<FishMover>();
         }
 
-        Destroy(fish, 28f);
+        Destroy(fish, 40f);
         return fish;
     }
 
