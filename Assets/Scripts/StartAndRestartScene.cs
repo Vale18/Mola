@@ -16,6 +16,7 @@ public class StartAndRestartScene : MonoBehaviour
 
  void Awake()
     {
+        elevatorMoving.setCanMove(false);
         nexusListener = FindObjectOfType<Nexus_Listener>().gameObject;
         depthTextObject = GameObject.Find("DepthText");
         nexusListener.SetActive(false);

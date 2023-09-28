@@ -6,7 +6,7 @@ public class ElevatorMoving : MonoBehaviour
 {
     public float minSpeed = 1f;
     public float maxSpeed = 50f;
-    
+
     [Header("Speed Transition Times")]
     public float speedUpTime = 3f;    // Time in seconds to reach maxSpeed
     public float slowDownTime = 3f;   // Time in seconds to reach minSpeed
@@ -36,7 +36,7 @@ public class ElevatorMoving : MonoBehaviour
 
     private float currentSpeed;
     private float speedLerpTime;
-    private bool canMove = false;
+    private bool canMove = true;
     
 
     private void Start()
