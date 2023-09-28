@@ -1,0 +1,154 @@
+fileFormatVersion: 2
+guid: 0ffd6926a761db24ea3ab36de51cc34d
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: b1
+    100002: b2
+    100004: b3
+    100006: b4
+    100008: b5
+    100010: b6
+    100012: //RootNode
+    100014: Head
+    100016: Jaw
+    100018: Lip
+    100020: Root
+    100022: SalmonMesh
+    100024: Head_1
+    100026: Head_2
+    100028: Head_3
+    100030: joint10
+    100032: joint11
+    100034: joint12
+    100036: joint13
+    100038: joint14
+    100040: joint15
+    100042: joint16
+    100044: joint17
+    100046: joint2
+    100048: joint3
+    100050: joint7
+    100052: joint8
+    100054: joint9
+    100056: SeaHorseMesh
+    400000: b1
+    400002: b2
+    400004: b3
+    400006: b4
+    400008: b5
+    400010: b6
+    400012: //RootNode
+    400014: Head
+    400016: Jaw
+    400018: Lip
+    400020: Root
+    400022: SalmonMesh
+    400024: Head_1
+    400026: Head_2
+    400028: Head_3
+    400030: joint10
+    400032: joint11
+    400034: joint12
+    400036: joint13
+    400038: joint14
+    400040: joint15
+    400042: joint16
+    400044: joint17
+    400046: joint2
+    400048: joint3
+    400050: joint7
+    400052: joint8
+    400054: joint9
+    400056: SeaHorseMesh
+    4300000: SalmonMesh
+    4300002: SeaHorseMesh
+    7400000: Swim
+    9500000: //RootNode
+    11100000: //RootNode
+    13700000: SalmonMesh
+    13700002: SeaHorseMesh
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 2
+    extraExposedTransformPaths: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Swim
+      takeName: Take 001
+      firstFrame: 1
+      lastFrame: 24
+      wrapMode: 2
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask: []
+      maskType: 0
+      maskSource: {instanceID: 0}
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: .00499999989
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+  tangentSpace:
+    normalSmoothAngle: 122
+    splitTangentsAcrossUV: 1
+    normalImportMode: 1
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  additionalBone: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
