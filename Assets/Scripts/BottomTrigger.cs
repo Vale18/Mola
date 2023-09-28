@@ -26,6 +26,7 @@ public class BottomTrigger : MonoBehaviour
             GameObject depthTextObject = GameObject.Find("DepthText");
             if (depthTextObject != null)
             {
+            depthTextObject.GetComponent<DisplayDepth>().enabled = false;
             TextMeshPro depthTextComponent = depthTextObject.GetComponent<TextMeshPro>();
             depthTextComponent.text = "Touch to\nRestart";
             }
