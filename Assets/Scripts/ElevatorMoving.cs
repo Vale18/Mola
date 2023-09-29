@@ -41,21 +41,14 @@ public class ElevatorMoving : MonoBehaviour
 
     private float currentSpeed;
     private float speedLerpTime;
-<<<<<<< Updated upstream
-    private bool canMove = true;
-    private AudioSource audioSource;
-=======
     private bool canMove = false;
->>>>>>> Stashed changes
+    private AudioSource audioSource;
     
 
     private void Start()
     {
-<<<<<<< Updated upstream
         audioSource = GetComponent<AudioSource>();
-=======
         StartCoroutine(InitialDelay());
->>>>>>> Stashed changes
     }
 
     private IEnumerator InitialDelay()
