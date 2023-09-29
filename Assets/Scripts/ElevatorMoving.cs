@@ -37,11 +37,12 @@ public class ElevatorMoving : MonoBehaviour
     private float currentSpeed;
     private float speedLerpTime;
     private bool canMove = true;
+    private AudioSource audioSource;
     
 
     private void Start()
     {
-
+        audioSource = GetComponent<AudioSource>();
     }
 
 
@@ -49,6 +50,9 @@ public class ElevatorMoving : MonoBehaviour
     {
         if (Input.GetKeyDown("space")) {
             if (!canMove) return;
+
+            audioSource.clip = Resources.Load<AudioClip>("Audio/motorhum");
+            audioSource.play();
 
             float currentDepth = transform.position.y;
 
