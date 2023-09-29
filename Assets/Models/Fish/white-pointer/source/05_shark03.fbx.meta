@@ -6,22 +6,7 @@ ModelImporter:
   - first:
       74: 4946245286145262075
     second: Swimming01.001
-  externalObjects:
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: Border_mat
-    second: {fileID: 2100000, guid: fab997c969bea0f46a4cd2e9cbaa9f11, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: body_mat
-    second: {fileID: 2100000, guid: d63fc2bffaa266749afd18cb25b6e4d2, type: 2}
-  - first:
-      type: UnityEngine:Material
-      assembly: UnityEngine.CoreModule
-      name: eye_teeth_mat
-    second: {fileID: 2100000, guid: 65ba48109111f724a8c07ef44e254f67, type: 2}
+  externalObjects: {}
   materials:
     materialImportMode: 2
     materialName: 0
