@@ -7403,7 +7403,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minSpeed: 1
   maxSpeed: 50
-  initialWaitTime: 35
+  initialWaitTime: 0
   speedUpTime: 3
   slowDownTime: 3
   speedUpStartDepth1: -30
@@ -12205,13 +12205,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a907ff200c66a9b46bc4f3e5e9840d6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 7942002211975276789}
-  elevatorMoving: {fileID: 974494047}
-  depthTextComponent: {fileID: 0}
-  depthTextObject: {fileID: 0}
-  nexusListener: {fileID: 0}
-  locked: 0
-  bottomReached: 0
 --- !u!1001 &1876840019
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -59,7 +59,7 @@ public class ElevatorMoving : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown("space")) {
+        
             if (!canMove) return;
 
             audioSource.clip = Resources.Load<AudioClip>("Audio/motorhum");
@@ -93,6 +93,6 @@ public class ElevatorMoving : MonoBehaviour
 
             // Adjust the elevator's position based on the calculated speed
             transform.position = new Vector3(transform.position.x, transform.position.y - currentSpeed * Time.deltaTime, transform.position.z);
-        }
+        
     }
     }
