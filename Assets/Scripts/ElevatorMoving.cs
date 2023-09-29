@@ -47,36 +47,38 @@ public class ElevatorMoving : MonoBehaviour
 
     private void Update()
     {
-        if (!canMove) return;
+        if (Input.GetKeyDown("space")) {
+            if (!canMove) return;
 
-        float currentDepth = transform.position.y;
+            float currentDepth = transform.position.y;
 
-        bool isInSpeedUpZone = 
-            (currentDepth <= speedUpStartDepth1 && currentDepth >= speedUpEndDepth1) ||
-            (currentDepth <= speedUpStartDepth2 && currentDepth >= speedUpEndDepth2) ||
-            (currentDepth <= speedUpStartDepth3 && currentDepth >= speedUpEndDepth3) ||
-            (currentDepth <= speedUpStartDepth4 && currentDepth >= speedUpEndDepth4) ||
-            (currentDepth <= speedUpStartDepth5 && currentDepth >= speedUpEndDepth5);
+            bool isInSpeedUpZone = 
+                (currentDepth <= speedUpStartDepth1 && currentDepth >= speedUpEndDepth1) ||
+                (currentDepth <= speedUpStartDepth2 && currentDepth >= speedUpEndDepth2) ||
+                (currentDepth <= speedUpStartDepth3 && currentDepth >= speedUpEndDepth3) ||
+                (currentDepth <= speedUpStartDepth4 && currentDepth >= speedUpEndDepth4) ||
+                (currentDepth <= speedUpStartDepth5 && currentDepth >= speedUpEndDepth5);
 
-        if ( currentDepth <= stopDepth)
-        {
-            canMove = false;
+            if ( currentDepth <= stopDepth)
+            {
+                canMove = false;
+            }
+
+            else if (isInSpeedUpZone)
+            {
+                speedLerpTime += Time.deltaTime / speedUpTime;
+            }
+            else
+            {
+                speedLerpTime -= Time.deltaTime / slowDownTime;
+            }
+
+            speedLerpTime = Mathf.Clamp01(speedLerpTime);
+            currentSpeed = Mathf.Lerp(minSpeed, maxSpeed, speedLerpTime);
+
+            // Adjust the elevator's position based on the calculated speed
+            transform.position = new Vector3(transform.position.x, transform.position.y - currentSpeed * Time.deltaTime, transform.position.z);
         }
-
-        else if (isInSpeedUpZone)
-        {
-            speedLerpTime += Time.deltaTime / speedUpTime;
-        }
-        else
-        {
-            speedLerpTime -= Time.deltaTime / slowDownTime;
-        }
-
-        speedLerpTime = Mathf.Clamp01(speedLerpTime);
-        currentSpeed = Mathf.Lerp(minSpeed, maxSpeed, speedLerpTime);
-
-        // Adjust the elevator's position based on the calculated speed
-        transform.position = new Vector3(transform.position.x, transform.position.y - currentSpeed * Time.deltaTime, transform.position.z);
     }
     public void setCanMove(bool canMove)
     {
