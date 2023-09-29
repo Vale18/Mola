@@ -6,10 +6,10 @@ public class ElevatorMoving : MonoBehaviour
 {
     public float minSpeed = 1f;
     public float maxSpeed = 50f;
-    
-    
 
-    [Header("Initial Wait Time")]
+
+
+[Header("Initial Wait Time")]
     public float initialWaitTime = 5f;  // Time in seconds before the elevator starts moving
 
     [Header("Speed Transition Times")]
@@ -63,7 +63,7 @@ public class ElevatorMoving : MonoBehaviour
             if (!canMove) return;
 
             audioSource.clip = Resources.Load<AudioClip>("Audio/motorhum");
-            audioSource.play();
+            audioSource.Play();
 
             float currentDepth = transform.position.y;
 
@@ -95,4 +95,4 @@ public class ElevatorMoving : MonoBehaviour
             transform.position = new Vector3(transform.position.x, transform.position.y - currentSpeed * Time.deltaTime, transform.position.z);
         }
     }
-}
+    }
