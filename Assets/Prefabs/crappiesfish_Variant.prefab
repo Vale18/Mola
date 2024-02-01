@@ -51,13 +51,57 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -6722587142347100071, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -5807387963271383164, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -3569870422311582965, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -1318606688981765441, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: -185760657671409162, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
       propertyPath: m_Name
-      value: crappiesfish
+      value: crappiesfish_Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2712350569852368993, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
       objectReference: {fileID: 2100000, guid: 0155ecd8b6400a042bd77140301471d3, type: 2}
+    - target: {fileID: 2992475347259148793, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 6763877676329813567, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7259899386448485982, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7357963977840850830, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7672443454586700320, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8753101f31064cf4f89ed0a39e350811, type: 3}
