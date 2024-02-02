@@ -15,7 +15,7 @@ Material:
   - _FOAM
   - _NORMALMAP
   - _REFRACTION
-  - _SHARP_INERSECTION
+  - _SMOOTH_INTERSECTION
   - _TRANSLUCENCY
   - _WAVES
   m_InvalidKeywords:
@@ -177,14 +177,14 @@ Material:
     - _HorizonDistance: 32
     - _IntersectionClipping: 0.583
     - _IntersectionFalloff: 1
-    - _IntersectionLength: 1
-    - _IntersectionRippleDist: 20
-    - _IntersectionRippleStrength: 0.53
+    - _IntersectionLength: 3.47
+    - _IntersectionRippleDist: 21.980007
+    - _IntersectionRippleStrength: 0.794
     - _IntersectionSize: 0.944
-    - _IntersectionSource: 0
+    - _IntersectionSource: 1
     - _IntersectionSpeed: 0.1
-    - _IntersectionStyle: 1
-    - _IntersectionTiling: 1
+    - _IntersectionStyle: 2
+    - _IntersectionTiling: 2.1100001
     - _IntersectionWaveDist: 33.28
     - _LightingMode: 2
     - _LightingOn: 1
@@ -194,7 +194,7 @@ Material:
     - _NormalMap: 1
     - _NormalMapOn: 1
     - _NormalSpeed: 0.2
-    - _NormalStrength: 0.165
+    - _NormalStrength: 0.243
     - _NormalSubSpeed: 0
     - _NormalSubTiling: 2
     - _NormalTiling: 0.16000009
@@ -233,8 +233,8 @@ Material:
     - _SlopeThreshold: 0.25
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
-    - _SparkleIntensity: 0
-    - _SparkleSize: 0.155
+    - _SparkleIntensity: 0.89
+    - _SparkleSize: 0.647
     - _SpecularHighlights: 1
     - _SpecularReflectionsOn: 1
     - _Speed: 1
@@ -251,11 +251,11 @@ Material:
     - _Texture_IntersectionOn: 1
     - _Tiling: 0.5
     - _Translucency: 1
-    - _TranslucencyCurvatureMask: 0.69
-    - _TranslucencyExp: 2
+    - _TranslucencyCurvatureMask: 0
+    - _TranslucencyExp: 20.2
     - _TranslucencyOn: 1
     - _TranslucencyReflectionMask: 0
-    - _TranslucencyStrength: 1
+    - _TranslucencyStrength: 0.76
     - _UnderwaterRefractionOffset: 0.2
     - _UnderwaterSurfaceSmoothness: 0.8
     - _VertexColorDepth: 0

@@ -4,12 +4,13 @@ using UnityEngine;
 public class DepthAudioTrigger : MonoBehaviour
 {
     public Transform playerTransform;    // Reference to the player's transform
-    public float triggerDepth1 = -1f;    // Depth at which first audio is played (Epipelagial Zone)
-    public float triggerDepth2 = -200f;  // Mesopelagial Zone
-    public float triggerDepth3 = -1000f; // Bathypelagial Zone
-    public float triggerDepth4 = -4000f; // Abyssopelagial Zone
-    public float triggerDepth5 = -6000f; // Hadopelagial Zone
-    public float triggerDepth6 = -11000f;// End
+    public float triggerDepth1 = 3f; // start
+    public float triggerDepth2 = 0f;  // Depth at which first audio is played (Epipelagial Zone)
+    public float triggerDepth3 = -200f; // Mesopelagial Zone
+    public float triggerDepth4 = -1000f; // Bathypelagial Zone
+    public float triggerDepth5 = -4000f; // Abyssopelagial Zone
+    public float triggerDepth6 = -6000f; // Hadopelagial Zone
+    public float triggerDepth7 = -10999f;// End
 
     private bool hasPlayedAudio1 = false;  // To ensure audio plays only once
     private bool hasPlayedAudio2 = false;
@@ -17,6 +18,7 @@ public class DepthAudioTrigger : MonoBehaviour
     private bool hasPlayedAudio4 = false;
     private bool hasPlayedAudio5 = false;
     private bool hasPlayedAudio6 = false;
+    private bool hasPlayedAudio7 = false;
 
     private AudioSource audioSource;
 
@@ -28,7 +30,7 @@ public class DepthAudioTrigger : MonoBehaviour
     private void Update()
     {
         // Check if first audio hasn't played and player's depth has reached the first trigger point
-        if (!hasPlayedAudio1 && playerTransform.position.y <= triggerDepth1)
+        if (!hasPlayedAudio1 && playerTransform.position.y >= triggerDepth1)
         {
             audioSource.clip = Resources.Load<AudioClip>("Audio/Audio_1");
             audioSource.Play();
@@ -44,35 +46,43 @@ public class DepthAudioTrigger : MonoBehaviour
         }
 
 
-        if (!hasPlayedAudio3 && playerTransform.position.y <= triggerDepth1)
+        if (!hasPlayedAudio3 && playerTransform.position.y <= triggerDepth3)
         {
             audioSource.clip = Resources.Load<AudioClip>("Audio/Audio_3");
             audioSource.Play();
-            hasPlayedAudio1 = true;  // Set flag to ensure audio plays only once
+            hasPlayedAudio3 = true;  // Set flag to ensure audio plays only once
         }
 
 
-        if (!hasPlayedAudio4 && playerTransform.position.y <= triggerDepth1)
+        if (!hasPlayedAudio4 && playerTransform.position.y <= triggerDepth4)
         {
             audioSource.clip = Resources.Load<AudioClip>("Audio/Audio_4");
             audioSource.Play();
-            hasPlayedAudio1 = true;  // Set flag to ensure audio plays only once
+            hasPlayedAudio4 = true;  // Set flag to ensure audio plays only once
         }
 
 
-        if (!hasPlayedAudio5 && playerTransform.position.y <= triggerDepth1)
+        if (!hasPlayedAudio5 && playerTransform.position.y <= triggerDepth5)
         {
             audioSource.clip = Resources.Load<AudioClip>("Audio/Audio_5");
             audioSource.Play();
-            hasPlayedAudio1 = true;  // Set flag to ensure audio plays only once
+            hasPlayedAudio5 = true;  // Set flag to ensure audio plays only once
         }
 
 
-        if (!hasPlayedAudio6 && playerTransform.position.y <= triggerDepth1)
+        if (!hasPlayedAudio6 && playerTransform.position.y <= triggerDepth6)
         {
             audioSource.clip = Resources.Load<AudioClip>("Audio/Audio_6");
             audioSource.Play();
-            hasPlayedAudio1 = true;  // Set flag to ensure audio plays only once
+            hasPlayedAudio6 = true;  // Set flag to ensure audio plays only once
+        }
+
+
+        if (!hasPlayedAudio7 && playerTransform.position.y <= triggerDepth7)
+        {
+            audioSource.clip = Resources.Load<AudioClip>("Audio/Audio_7");
+            audioSource.Play();
+            hasPlayedAudio7 = true;  // Set flag to ensure audio plays only once
         }
     }
 }

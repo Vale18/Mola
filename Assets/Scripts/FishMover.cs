@@ -4,7 +4,7 @@ public class FishMover : MonoBehaviour
 {
     public float speed = 5f;
     private const float waterSurfaceY = -1f;
-    private const float minCenterDistance = 15f;
+    private const float minCenterDistance = 10f;
     private Vector3 moveDirection;
 
     private void Start()

@@ -92,7 +92,7 @@ public class FishSpawner : MonoBehaviour
     {
         while (true)
         {
-            int fishCount = Mathf.FloorToInt(currentZoneDensity * spawnRadius * spawnRadius);
+            int fishCount = Mathf.FloorToInt(currentZoneDensity * spawnRadius);
             for (int i = 0; i < fishCount; i++)
             {
                 SpawnRandomFish();
@@ -111,7 +111,7 @@ public class FishSpawner : MonoBehaviour
             fish.AddComponent<FishMover>();
         }
 
-        Destroy(fish, 28f);
+        Destroy(fish, 60f);
         return fish;
     }
 
